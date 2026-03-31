@@ -1,0 +1,49 @@
+# ─── Claude ───────────────────────────────────────────────
+.claude/
+
+# ─── Environment & Secrets ────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# ─── Next.js ──────────────────────────────────────────────
+src/ui/.next/
+src/ui/out/
+src/ui/node_modules/
+
+# ─── Go ───────────────────────────────────────────────────
+src/catalog/catalog
+src/catalog/*.exe
+src/catalog/tmp/
+
+# ─── Java / Maven ─────────────────────────────────────────
+src/cart/target/
+src/orders/target/
+**/.mvn/wrapper/maven-wrapper.jar
+
+# ─── Node / TypeScript ────────────────────────────────────
+node_modules/
+dist/
+*.tsbuildinfo
+
+# ─── OS ───────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── IDEs ─────────────────────────────────────────────────
+.idea/
+.vscode/
+*.suo
+*.user
+
+# ─── Logs & Temp ──────────────────────────────────────────
+*.log
+*.tmp
+*.swp
+tmp/
