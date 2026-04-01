@@ -1,18 +1,11 @@
 # Build Stage
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS build-env
-
-RUN dnf --setopt=install_weak_deps=False install -q -y \
-    maven \
-    java-21-amazon-corretto-headless \
-    which \
-    tar \
-    gzip \
-    && dnf clean all
+FROM maven:3.9-eclipse-temurin-21 AS build-env
 
 WORKDIR /app
 COPY .mvn .mvn
 COPY mvnw .
 COPY pom.xml .
+RUN chmod +x mvnw
 RUN for attempt in 1 2 3; do mvn dependency:go-offline -B -q && break || { [ "$attempt" -lt 3 ] && echo "Retry $attempt..." && sleep 10; }; done
 
 COPY ./src ./src
