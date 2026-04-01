@@ -203,6 +203,47 @@ docker push $ECR/retail-fenix-checkout:latest
 
 ---
 
+## Part 4 — Production Dockerfiles
+
+### What changed from Dev to Prod
+
+All production Dockerfiles use **Amazon Linux 2023** (`public.ecr.aws/amazonlinux/amazonlinux:2023`) as base image instead of lightweight Alpine or official language images. This ensures better compatibility with AWS services (ECS, EKS, Lambda) and aligns with the Amazon Corretto JDK distribution.
+
+| Feature | Dev | Prod |
+|---|---|---|
+| Base image | `alpine` / `eclipse-temurin` / `node` | Amazon Linux 2023 |
+| Runtime user | `root` | `appuser` (uid 1000, non-root) |
+| Healthcheck | None | `curl -f http://localhost:<port>/health` |
+| Spring profile | Default | `SPRING_PROFILES_ACTIVE=prod` |
+| JVM options | Hardcoded | `$JAVA_OPTS` (configurable at runtime) |
+| Dependency retry | None | 3 attempts with 10s delay |
+| curl | Not available | Full curl (supports telnet/health probes) |
+
+### Why each change matters
+
+**Amazon Linux 2023** — AWS-optimized, security-patched, and consistent with the runtime environment in ECS/EKS. Avoids compatibility issues between Alpine musl libc and AWS SDKs.
+
+**Non-root user (`appuser`)** — Running as root inside a container is a security risk. If the container is compromised, the attacker gets root on the host. `appuser` with uid 1000 limits the blast radius.
+
+**Healthcheck** — Allows Docker and orchestrators (ECS, Kubernetes) to know if the service is actually ready to receive traffic, not just running.
+
+**`SPRING_PROFILES_ACTIVE=prod`** — Activates production Spring configuration (different DB settings, logging levels, feature flags).
+
+**`$JAVA_OPTS`** — Allows injecting JVM flags at deploy time without rebuilding the image (e.g., heap size, GC tuning, OpenTelemetry agents).
+
+**Dependency retry** — Network timeouts during `mvn dependency:go-offline` are common in CI environments. The retry loop prevents flaky builds.
+
+### Build time difference
+
+Production builds are slower because:
+1. `dnf install` downloads packages from the internet on every build (no pre-installed runtime)
+2. Amazon Linux 2023 base image is larger than Alpine (~180MB vs ~5MB)
+3. The retry logic adds potential wait time
+
+This is a trade-off: slower builds, but a hardened and AWS-compatible runtime image.
+
+---
+
 ## Useful Commands
 
 ```bash
