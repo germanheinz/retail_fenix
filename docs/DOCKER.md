@@ -12,10 +12,122 @@
 
 ---
 
+> **IMPORTANT — Read before writing any Dockerfile**
+> See [Multi-Stage Build Strategy](#multi-stage-build-strategy) and [Base Image Strategy](#base-image-strategy) before composing a Dockerfile for this project.
+
+---
+
 ## Prerequisites
 
 - Docker Desktop installed and running
 - Git
+
+---
+
+## Multi-Stage Build Strategy
+
+> This is the most important concept when composing a Dockerfile for this project.
+
+A multi-stage build splits the Dockerfile into two separate stages: **build** and **runtime**. Each stage uses its own base image. Only the final artifact (JAR, binary, dist folder) is copied from the build stage into the runtime stage. Everything else — source code, compilers, build tools, dependencies — is discarded.
+
+```
+┌─────────────────────────────────────────┐
+│           BUILD STAGE                   │
+│   Base image with build tools           │
+│   (maven, go, node, gcc...)             │
+│                                         │
+│   COPY source code                      │
+│   RUN compile / build                   │
+│   → generates artifact                  │
+│     (app.jar / binary / dist/)          │
+└─────────────────┬───────────────────────┘
+                  │  only the artifact
+                  ▼
+┌─────────────────────────────────────────┐
+│           RUNTIME STAGE                 │
+│   Clean base image (no build tools)     │
+│   + only runtime (JRE, node, libc...)   │
+│   + non-root user                       │
+│   + healthcheck                         │
+│   + artifact copied from build stage    │
+└─────────────────────────────────────────┘
+          ↓
+    final Docker image
+    (small, secure, production-ready)
+```
+
+### Why it matters
+
+| | Without multi-stage | With multi-stage |
+|---|---|---|
+| Image size | ~800MB (includes compiler, sources) | ~200MB (runtime only) |
+| Attack surface | High (build tools exposed) | Low (minimal runtime) |
+| Source code in image | Yes | No |
+| Production-ready | No | Yes |
+
+### How it looks in a Dockerfile
+
+```dockerfile
+# ── STAGE 1: BUILD ──────────────────────────────────────
+FROM maven:3.9-eclipse-temurin-21 AS build-env   # has JDK + Maven
+
+WORKDIR /build
+COPY pom.xml .
+RUN mvn dependency:go-offline          # cache dependencies
+COPY ./src ./src
+RUN ./mvnw -DskipTests package -q      # compile → generates .jar
+#
+# Everything above (Maven, JDK, source code) is DISCARDED after this stage
+#
+# ── STAGE 2: RUNTIME ────────────────────────────────────
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023   # clean image, no build tools
+
+RUN dnf install -y java-21-amazon-corretto-headless   # JRE only (no compiler)
+
+COPY --from=build-env /build/target/app.jar .         # only the artifact
+
+CMD ["java", "-jar", "app.jar"]
+```
+
+The key instruction is `COPY --from=build-env` — it reaches into the previous stage and pulls only what is needed.
+
+---
+
+## Base Image Strategy
+
+> Always use the official language image for the build stage. Use Amazon Linux 2023 for the runtime stage.
+
+Amazon Linux 2023 ships older versions of Go, Node, and Java via `dnf`. Using it as the build stage causes version incompatibility errors. The solution is to use the official language image (which has the exact version required) only for building, and Amazon Linux 2023 for the final runtime.
+
+| Service  | Build Stage                    | Why                              | Runtime Stage     |
+|----------|--------------------------------|----------------------------------|-------------------|
+| ui       | `node:20-alpine`               | AL2023 ships Node 18             | Amazon Linux 2023 |
+| catalog  | `golang:1.24-alpine`           | AL2023 ships Go 1.21             | Amazon Linux 2023 |
+| cart     | `public.ecr.aws/amazonlinux/amazonlinux:2023` | AL2023 ships Java 21 Corretto natively | Amazon Linux 2023 |
+| orders   | `public.ecr.aws/amazonlinux/amazonlinux:2023` | AL2023 ships Java 21 Corretto natively | Amazon Linux 2023 |
+| checkout | `node:20-alpine`               | AL2023 ships Node 18             | Amazon Linux 2023 |
+
+### Why Amazon Linux 2023 for runtime
+
+| Reason | Detail |
+|---|---|
+| AWS-native | Optimized and patched by AWS for ECS/EKS/EC2 |
+| Amazon Corretto | AWS-supported JDK, production-grade |
+| Security | Minimal packages by default (`install_weak_deps=False`) |
+| Consistency | Same OS as the underlying EC2 instances |
+| Long-term support | Supported by AWS until 2028 |
+
+### Dev vs Prod
+
+Both environments use multi-stage builds. The difference is the base image:
+
+```bash
+# local development — fast builds, Alpine-based
+docker compose -f docker-compose.dev.yml up --build
+
+# production — hardened, Amazon Linux 2023
+docker compose up --build
+```
 
 ---
 

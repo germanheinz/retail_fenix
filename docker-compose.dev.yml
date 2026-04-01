@@ -1,0 +1,41 @@
+services:
+
+  ui:
+    build:
+      context: ./src/ui
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    depends_on:
+      - catalog
+      - cart
+      - orders
+      - checkout
+
+  catalog:
+    build:
+      context: ./src/catalog
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8081:8080"
+
+  cart:
+    build:
+      context: ./src/cart
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8082:8080"
+
+  orders:
+    build:
+      context: ./src/orders
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8083:8080"
+
+  checkout:
+    build:
+      context: ./src/checkout
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8084:8080"

@@ -1,11 +1,11 @@
 # Build Stage
-FROM golang:1.23-alpine AS build-env
+FROM golang:1.24-alpine AS build-env
 
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN go build -o catalog ./main.go
+RUN go mod tidy && CGO_ENABLED=0 GOOS=linux GOTOOLCHAIN=local go build -o catalog .
 
 # Package Stage
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023
