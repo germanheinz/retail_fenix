@@ -61,7 +61,7 @@ public class OrderController {
   public List<ExistingOrder> order() {
     return this.service.list()
       .stream()
-      .peek(o -> System.out.println("Order: " + o))
+      .peek(o -> log.debug("Order: {}", o))
       .map(this.orderMapper::toExistingOrder)
       .collect(Collectors.toList());
   }

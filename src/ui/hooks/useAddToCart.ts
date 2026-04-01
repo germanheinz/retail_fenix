@@ -20,7 +20,7 @@ export function useAddToCart() {
           'Content-Type': 'application/json',
           'X-Session-ID': getClientSessionId(),
         },
-        body: JSON.stringify({ id: product.id, quantity: 1 }),
+        body: JSON.stringify({ id: product.id, quantity: 1, unitPrice: product.price }),
       })
       if (!res.ok) throw new Error()
       await refreshCart()

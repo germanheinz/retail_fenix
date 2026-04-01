@@ -27,7 +27,7 @@ export function CartItem({ item }: CartItemProps) {
           'Content-Type': 'application/json',
           'X-Session-ID': sessionId,
         },
-        body: JSON.stringify({ quantity: newQuantity }),
+        body: JSON.stringify({ quantity: newQuantity, unitPrice: item.price }),
       })
       if (!res.ok) throw new Error('Failed to update cart')
       await refreshCart()
@@ -55,18 +55,22 @@ export function CartItem({ item }: CartItemProps) {
     <div className="flex items-center gap-4 py-4 border-b border-gray-100 last:border-0">
       {/* Product Image */}
       <Link href={`/catalog/${item.id}`} className="flex-shrink-0">
-        <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-50">
-          <Image
-            src={`/assets/img/products/${item.id}.jpg`}
-            alt={item.name}
-            fill
-            className="object-cover"
-            sizes="64px"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement
-              target.src = 'https://placehold.co/64x64/f3f4f6/9ca3af?text=IMG'
-            }}
-          />
+        <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+          {item.image ? (
+            <Image
+              src={item.image}
+              alt={item.name}
+              fill
+              className="object-cover"
+              sizes="64px"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement
+                target.style.display = 'none'
+              }}
+            />
+          ) : (
+            <span className="text-[10px] text-gray-400 font-medium">IMG</span>
+          )}
         </div>
       </Link>
 

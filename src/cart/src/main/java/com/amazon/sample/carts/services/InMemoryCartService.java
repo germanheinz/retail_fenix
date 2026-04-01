@@ -64,10 +64,18 @@ public class InMemoryCartService implements CartService {
     int quantity,
     int unitPrice
   ) {
+    Cart cart = this.get(customerId);
+
+    for (CartItem existing : cart.getItems()) {
+      if (existing.getItemId().equals(itemId)) {
+        existing.setQuantity(existing.getQuantity() + quantity);
+        existing.setUnitPrice(unitPrice);
+        return existing;
+      }
+    }
+
     CartItem item = new CartItem(itemId, quantity, unitPrice);
-
-    this.get(customerId).getItems().add(item);
-
+    cart.getItems().add(item);
     return item;
   }
 
@@ -109,6 +117,7 @@ public class InMemoryCartService implements CartService {
       if (item.getItemId().equals(itemId)) {
         item.setQuantity(quantity);
         item.setUnitPrice(unitPrice);
+        return Optional.of(item);
       }
     }
 

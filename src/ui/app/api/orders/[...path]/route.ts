@@ -5,14 +5,14 @@ const ORDERS_URL = process.env.RETAIL_UI_ENDPOINTS_ORDERS
 type RouteContext = { params: Promise<{ path: string[] }> }
 
 async function proxyRequest(req: NextRequest, context: RouteContext) {
+  if (!ORDERS_URL) {
+    return NextResponse.json({ error: 'Orders service not configured' }, { status: 503 })
+  }
+
   const params = await context.params
   const path = params.path?.join('/') ?? ''
   const searchParams = req.nextUrl.searchParams.toString()
   const targetUrl = `${ORDERS_URL}/${path}${searchParams ? `?${searchParams}` : ''}`
-
-  if (!ORDERS_URL) {
-    return NextResponse.json({ error: 'Orders service not configured' }, { status: 503 })
-  }
 
   try {
     const headers = new Headers()

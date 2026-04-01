@@ -32,6 +32,7 @@ export interface CartItem {
   name: string
   quantity: number
   price: number
+  image?: string
 }
 
 export interface Cart {
@@ -43,7 +44,7 @@ export interface CheckoutItem {
   id: string
   name: string
   quantity: number
-  unitCost: number
+  price: number
   totalCost: number
 }
 

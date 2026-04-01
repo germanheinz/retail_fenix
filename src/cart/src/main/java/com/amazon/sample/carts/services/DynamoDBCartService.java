@@ -153,7 +153,7 @@ public class DynamoDBCartService
     if (item != null) {
       item.setQuantity(item.getQuantity() + quantity);
     } else {
-      item = new DynamoItemEntity(hashKey, customerId, itemId, 1, unitPrice);
+      item = new DynamoItemEntity(hashKey, customerId, itemId, quantity, unitPrice);
     }
 
     this.table.putItem(item);
@@ -181,7 +181,7 @@ public class DynamoDBCartService
 
   @Override
   public Optional<DynamoItemEntity> item(String customerId, String itemId) {
-    return Optional.of(
+    return Optional.ofNullable(
       this.table.getItem(
           Key.builder().partitionValue(hashKey(customerId, itemId)).build()
         )
