@@ -261,6 +261,74 @@ This is a trade-off: slower builds, but a hardened and AWS-compatible runtime im
 
 ---
 
+## Troubleshooting
+
+### `package-lock.json not found` (ui / checkout)
+
+**Cause:** Amazon Linux 2023 ships Node 18 via `dnf`, but the lockfile was generated with Node 20+. `npm ci` fails due to version incompatibility.
+
+**Fix:** Use `node:20-alpine` as the build stage and Amazon Linux 2023 only as the runtime stage.
+
+```dockerfile
+# Build Stage — use official Node 20
+FROM node:20-alpine AS build-env
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+...
+
+# Runtime Stage — use Amazon Linux 2023
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023
+...
+```
+
+---
+
+### `go mod download did not complete successfully` (catalog)
+
+**Cause:** Amazon Linux 2023 ships Go 1.21 via `dnf`, but `go.mod` requires Go 1.23+.
+
+**Fix:** Use `golang:1.23-alpine` as the build stage.
+
+```dockerfile
+# Build Stage — use official Go 1.23
+FROM golang:1.23-alpine AS build-env
+...
+
+# Runtime Stage — use Amazon Linux 2023
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023
+...
+```
+
+---
+
+### `mvnw: Permission denied` (cart / orders)
+
+**Cause:** The Maven wrapper script loses its executable permission on Windows filesystems.
+
+**Fix:** Add `chmod +x mvnw` after copying it.
+
+```dockerfile
+COPY mvnw .
+RUN chmod +x mvnw
+```
+
+---
+
+### Build stage summary
+
+All services follow this pattern — official language image for build, Amazon Linux 2023 for runtime:
+
+| Service  | Build Stage                    | Runtime Stage          |
+|----------|--------------------------------|------------------------|
+| ui       | `node:20-alpine`               | Amazon Linux 2023      |
+| catalog  | `golang:1.23-alpine`           | Amazon Linux 2023      |
+| cart     | `maven:3.9-eclipse-temurin-21` | Amazon Linux 2023      |
+| orders   | `maven:3.9-eclipse-temurin-21` | Amazon Linux 2023      |
+| checkout | `node:20-alpine`               | Amazon Linux 2023      |
+
+---
+
 ## Useful Commands
 
 ```bash

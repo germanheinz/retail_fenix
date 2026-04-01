@@ -1,9 +1,5 @@
 # Build Stage
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS build-env
-
-RUN dnf --setopt=install_weak_deps=False install -q -y \
-    golang \
-    && dnf clean all
+FROM golang:1.23-alpine AS build-env
 
 WORKDIR /app
 COPY go.mod go.sum ./
