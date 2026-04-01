@@ -15,7 +15,7 @@ const MARQUEE_ITEMS = [
   '🎶 Demo Events Platform — Fenix',
 ] as const
 
-export function Navbar() {
+export function Navbar({ version }: { version: string }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const cartCount = useCartCount()
   const pathname = usePathname()
@@ -23,7 +23,7 @@ export function Navbar() {
   return (
     <>
       {/* Top marquee banner */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2 overflow-hidden text-xs">
+      <div className="bg-gradient-to-r from-emerald-600 to-cyan-600 text-white py-2 overflow-hidden text-xs">
         <div className="animate-marquee whitespace-nowrap">
           {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((text, i) => (
             <span key={i} className="mx-8">{text}</span>
@@ -38,7 +38,7 @@ export function Navbar() {
           <Link href="/" className="font-bold text-lg tracking-tight">
             Fenix
           </Link>
-          <span className="text-gray-400 text-sm ml-1">| Shop</span>
+          <span className="text-gray-400 text-sm ml-1">| {version}</span>
         </div>
 
         {/* Desktop category links */}
