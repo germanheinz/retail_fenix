@@ -1,11 +1,5 @@
 # Build Stage
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023 AS build-env
-
-RUN dnf --setopt=install_weak_deps=False install -q -y \
-    nodejs \
-    npm \
-    && dnf clean all && \
-    npm install -g yarn
+FROM node:20-alpine AS build-env
 
 WORKDIR /app
 COPY package.json yarn.lock ./
