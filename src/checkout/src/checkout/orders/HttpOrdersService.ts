@@ -17,26 +17,44 @@
  */
 
 import { Checkout } from '../models/Checkout';
-import { ExistingOrder, OrdersApi } from '../../clients/orders/api';
+import { ExistingOrder } from '../../clients/orders/model/existingOrder';
 import { IOrdersService } from './IOrdersService';
 
 export class HttpOrdersService implements IOrdersService {
-  private ordersApi: OrdersApi;
-
-  constructor(endpoint: string) {
-    this.ordersApi = new OrdersApi(endpoint);
-  }
+  constructor(private readonly endpoint: string) {}
 
   async create(checkout: Checkout): Promise<ExistingOrder> {
-    return this.ordersApi
-      .createOrder({
-        email: checkout.shippingAddress.email,
-        firstName: 'John',
-        lastName: 'Doe',
-        items: checkout.items,
-      })
-      .then((value) => {
-        return value.body;
-      });
+    const { shippingAddress, items } = checkout;
+
+    const body = {
+      shippingAddress: {
+        firstName: shippingAddress.firstName,
+        lastName: shippingAddress.lastName,
+        email: shippingAddress.email,
+        address1: shippingAddress.address1,
+        address2: shippingAddress.address2 ?? null,
+        city: shippingAddress.city,
+        zipCode: shippingAddress.zip,
+        state: shippingAddress.state,
+      },
+      items: items.map((item) => ({
+        productId: item.id,
+        quantity: item.quantity,
+        unitCost: item.price,
+        totalCost: item.totalCost,
+      })),
+    };
+
+    const response = await fetch(`${this.endpoint}/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Orders service returned ${response.status}`);
+    }
+
+    return response.json() as Promise<ExistingOrder>;
   }
 }

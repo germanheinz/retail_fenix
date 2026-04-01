@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @Tag(name = "carts")
@@ -94,7 +95,9 @@ public class CartsController {
     @PathVariable String customerId,
     @PathVariable String itemId
   ) {
-    return this.service.item(customerId, itemId).map(Item::from).get();
+    return this.service.item(customerId, itemId)
+      .map(Item::from)
+      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
   }
 
   @ResponseStatus(HttpStatus.OK)

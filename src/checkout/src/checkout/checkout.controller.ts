@@ -42,15 +42,13 @@ export class CheckoutController {
   async getCheckout(
     @Param('customerId') customerId: string,
   ): Promise<Checkout> {
-    const checkout = this.checkoutService.get(customerId);
+    const checkout = await this.checkoutService.get(customerId);
 
-    return checkout.then(function (data) {
-      if (!data) {
-        throw new NotFoundException('Checkout not found');
-      }
+    if (!checkout) {
+      throw new NotFoundException('Checkout not found');
+    }
 
-      return data;
-    });
+    return checkout;
   }
 
   @Post(':customerId/update')

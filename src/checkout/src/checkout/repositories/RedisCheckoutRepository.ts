@@ -62,7 +62,6 @@ export class RedisCheckoutRepository
       }
     } catch (error) {
       console.error('Error closing Redis connections:', error);
-      throw error;
     }
   }
 

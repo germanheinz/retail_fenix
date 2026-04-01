@@ -73,7 +73,7 @@ export class CheckoutService {
 
       if (shippingRates) {
         for (let i = 0; i < shippingRates.rates.length; i++) {
-          if (shippingRates.rates[i].token == request.deliveryOptionToken) {
+          if (shippingRates.rates[i].token === request.deliveryOptionToken) {
             shipping = shippingRates.rates[i].amount;
           }
         }
@@ -105,6 +105,10 @@ export class CheckoutService {
 
     if (!checkout) {
       throw new Error('Checkout not found');
+    }
+
+    if (!checkout.shippingAddress) {
+      throw new Error('Shipping address is required to submit checkout');
     }
 
     const order = await this.ordersService.create(checkout);
