@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 
 const THEME = (process.env.RETAIL_UI_THEME || 'default') as Theme
 const CHAT_ENABLED = process.env.RETAIL_UI_CHAT_ENABLED === 'true'
+const VERSION = process.env.RETAIL_UI_VERSION || 'v1.0.0'
 
 export default function RootLayout({
   children,
@@ -28,7 +29,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <SWRProvider>
           <div className="flex flex-col min-h-screen">
-            <Navbar />
+            <Navbar version={VERSION} />
             <main className="flex-1">
               {children}
             </main>
