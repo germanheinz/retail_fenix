@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog
+  labels:
+    app: catalog
+spec:
+  replicas: 1 # number of Pods running in parallel
+  selector:
+    matchLabels:
+      app: catalog # must match template.labels so the Deployment can find its Pods
+  strategy:
+    type: RollingUpdate # updates Pods one at a time, zero downtime
+    rollingUpdate:
+      maxSurge: 1       # creates 1 new Pod BEFORE terminating the old one
+      maxUnavailable: 0 # never goes below desired replicas during an update
+  template:
+    metadata:
+      labels:
+        app: catalog # this label connects the Pod to the Deployment and to the Service
+    spec:
+      securityContext:
+        runAsNonRoot: true # process inside the container cannot run as root
+      containers:
+        - name: catalog
+          image: public.ecr.aws/i5b4r2o0/retail-fenix/catalog:1.0.0
+          ports:
+            - containerPort: 8080 # informational only, the Service is what exposes the port
+          env:
+            - name: GIN_MODE
+              value: "release"
+          envFrom:
+            - configMapRef:
+                name: catalog # injects RETAIL_CATALOG_PERSISTENCE_* vars
+          resources:
+            requests:             # what K8s reserves on the node to schedule this Pod
+              cpu: "250m"         # 250 millicores = 0.25 of a core
+              memory: "128Mi"
+            limits:               # maximum allowed — if exceeded, K8s kills/throttles the Pod
+              cpu: "500m"
+              memory: "256Mi"
+          readinessProbe:         # is the app ready to receive traffic? if it fails, K8s stops sending requests
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15 # wait 15s before first check (startup time)
+            periodSeconds: 10       # check every 10s
+            failureThreshold: 3     # 3 consecutive failures → Pod marked as not ready
+          livenessProbe:          # is the app still alive? if it fails, K8s restarts the Pod
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp               # Tomcat needs to write temp files here
+          securityContext:
+            runAsUser: 1000                  # numeric UID required when image defines a named user (appuser)
+            runAsNonRoot: true               # double-enforced at container level
+            readOnlyRootFilesystem: true     # prevents writes to the container filesystem
+            allowPrivilegeEscalation: false  # process cannot gain more permissions at runtime
+            capabilities:
+              drop:
+                - ALL # drops all Linux capabilities from the container (least privilege)
+      volumes:
+        - name: tmp
+          emptyDir: {}                       # in-memory writable volume for /tmp, discarded when Pod stops
