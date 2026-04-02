@@ -235,7 +235,7 @@ kubectl scale deployment catalog --replicas=3
 kubectl rollout history deployment/catalog
 
 # Update the Deployment
-kubectl set image deployment/catalog catalog=public.ecr.aws/aws-containers/retail-store-sample-catalog:1.3.0
+kubectl set image deployment/catalog catalog=public.ecr.aws/aws-containers/retail-fenix-catalog:1.3.0
 
 # List Deployment Revisions
 kubectl rollout history deployment/catalog

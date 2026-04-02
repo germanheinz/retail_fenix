@@ -30,10 +30,10 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 
-	"github.com/aws-containers/retail-store-sample-app/catalog/api"
-	"github.com/aws-containers/retail-store-sample-app/catalog/config"
-	"github.com/aws-containers/retail-store-sample-app/catalog/controller"
-	"github.com/aws-containers/retail-store-sample-app/catalog/repository"
+	"github.com/aws-containers/retail-fenix-app/catalog/api"
+	"github.com/aws-containers/retail-fenix-app/catalog/config"
+	"github.com/aws-containers/retail-fenix-app/catalog/controller"
+	"github.com/aws-containers/retail-fenix-app/catalog/repository"
 
 	"github.com/gin-gonic/gin"
 )
