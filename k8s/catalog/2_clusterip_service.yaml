@@ -1,0 +1,17 @@
+# ClusterIP is the default Service type — only accessible within the cluster (no external traffic).
+# The selector must match exactly the labels defined in the Deployment's pod template.
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-service # must match the hostname other services use: http://catalog-service:8080
+  labels:
+    app: catalog
+spec:
+  type: ClusterIP
+  selector:
+    app: catalog # must match template.labels in 1_deployment.yaml
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
