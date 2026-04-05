@@ -75,10 +75,24 @@ async function proxyRequest(req: NextRequest, context: RouteContext) {
     const body = req.method !== 'GET' && req.method !== 'HEAD' ? await req.text() : undefined
 
     const res = await fetch(targetUrl, { method: req.method, headers, body })
+    const contentType = res.headers.get('Content-Type') || 'application/json'
+
+    // Normalize plain array response from /catalog/products into ProductPage format
+    if (res.ok && path[0] === 'products' && !path[1]) {
+      const data = await res.json()
+      if (Array.isArray(data)) {
+        const page = parseInt(searchParams.get('page') || '1')
+        const size = parseInt(searchParams.get('size') || '6')
+        const normalized = { page, size: data.length, totalSize: data.length, totalPages: 1, products: data }
+        return NextResponse.json(normalized)
+      }
+      return NextResponse.json(data, { status: res.status })
+    }
+
     const responseBody = await res.text()
     return new NextResponse(responseBody, {
       status: res.status,
-      headers: { 'Content-Type': res.headers.get('Content-Type') || 'application/json' },
+      headers: { 'Content-Type': contentType },
     })
   } catch (err) {
     console.error('Catalog proxy error, falling back to mock:', err)

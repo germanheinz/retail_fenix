@@ -56,8 +56,8 @@ export default async function EventDetailPage({ params }: PageProps) {
                   </Link>
                 )}
 
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{product.name}</h1>
-                {product.artist && <p className="text-base text-gray-500 mb-6">{product.artist}</p>}
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{product.artist ?? product.name}</h1>
+                {product.artist && <p className="text-base text-gray-500 mb-6">{product.name}</p>}
 
                 <div className="space-y-3 mb-6">
                   {product.date && (

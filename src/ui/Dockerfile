@@ -8,23 +8,16 @@ COPY . .
 RUN npm run build
 
 # Package Stage
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023
+FROM node:20-alpine
 
-RUN dnf --setopt=install_weak_deps=False install -q -y \
-    nodejs \
-    shadow-utils \
-    && dnf clean all
+RUN apk add --no-cache curl
 
 ENV APPUSER=appuser
-ENV APPUID=1000
-ENV APPGID=1000
+ENV APPUID=1001
+ENV APPGID=1001
 
-RUN useradd \
-    --home "/app" \
-    --create-home \
-    --user-group \
-    --uid "$APPUID" \
-    "$APPUSER"
+RUN addgroup -g "$APPGID" "$APPUSER" && \
+    adduser -D -h /app -u "$APPUID" -G "$APPUSER" "$APPUSER"
 
 ENV NODE_ENV=production
 

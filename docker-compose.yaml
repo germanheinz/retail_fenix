@@ -283,4 +283,7 @@ services:
         published: "8888"
         target: 3000
     restart: always
+    build:
+      context: ./src/ui
+      dockerfile: Dockerfile
     image: public.ecr.aws/i5b4r2o0/retail-fenix/ui:1.0.0
