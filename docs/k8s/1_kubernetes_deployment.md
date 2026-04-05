@@ -66,7 +66,7 @@ spec:
             readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 1000
-          image: "public.ecr.aws/i5b4r2o0/catalog:1.0.0"
+          image: "public.ecr.aws/i5b4r2o0/retail-fenix/catalog:1.0.0"
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
