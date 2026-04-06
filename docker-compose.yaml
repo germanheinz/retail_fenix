@@ -90,6 +90,9 @@ services:
     restart: always
     security_opt:
       - no-new-privileges:true
+    build:
+      context: ./src/catalog
+      dockerfile: Dockerfile
     image: public.ecr.aws/i5b4r2o0/retail-fenix/catalog:1.0.0
   catalog-db:
     environment:
