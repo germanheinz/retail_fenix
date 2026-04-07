@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "retail-fenix.fullname" . }}
+  labels:
+    {{- include "retail-fenix.labels" . | nindent 4 }}
+data:
+  RETAIL_CATALOG_PERSISTENCE_PROVIDER: {{ .Values.app.persistence.provider | quote }}
+  RETAIL_CATALOG_PERSISTENCE_ENDPOINT: {{ .Values.app.persistence.endpoint | quote }}
+  RETAIL_CATALOG_PERSISTENCE_DB_NAME: {{ .Values.app.persistence.database | quote }}
+  RETAIL_CATALOG_PERSISTENCE_CONNECT_TIMEOUT: "5"

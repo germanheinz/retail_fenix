@@ -1,0 +1,74 @@
+replicaCount: 1
+
+image:
+  repository: public.ecr.aws/i5b4r2o0/retail-fenix/catalog
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+serviceAccount:
+  create: false
+  name: "catalog-mysql-sa"
+
+podSecurityContext:
+  runAsNonRoot: true
+
+securityContext:
+  runAsUser: 1000
+  runAsNonRoot: true
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+resources:
+  requests:
+    cpu: "250m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "256Mi"
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 3
+
+volumeMounts:
+  - name: aws-secrets
+    mountPath: /mnt/secrets-store
+    readOnly: true
+
+volumes:
+  - name: aws-secrets
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: "catalog-db-secrets"
+
+autoscaling:
+  enabled: false
+
+app:
+  persistence:
+    provider: mysql
+    endpoint: ""
+    database: "catalogdb"
+    secret:
+      name: catalog-db
