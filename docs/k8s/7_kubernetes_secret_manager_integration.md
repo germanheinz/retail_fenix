@@ -17,6 +17,8 @@ By the end of this lesson, you will:
 
 ## Architecture Overview
 
+![AWS Secrets Manager for EKS](images/aws_secrets_manager_eks.png)
+
 ```
 +------------------------------------+
 | AWS Secrets Manager                |
