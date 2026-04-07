@@ -46,17 +46,27 @@ spec:
               echo "Loaded secrets from AWS Secrets Manager. Starting MySQL with user=$MYSQL_USER";
               exec docker-entrypoint.sh mysqld          
           volumeMounts:
-            - name: data
+            - name: data-ebs
               mountPath: /var/lib/mysql
             - name: aws-secrets
               mountPath: /mnt/secrets-store
               readOnly: true              
       volumes:
-        - name: data
-          emptyDir: {}
+        #- name: data
+        #  emptyDir: {}
         - name: aws-secrets
           csi:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
               secretProviderClass: "catalog-db-secrets"          
+# Added for provisioning EBS Volumes              
+  volumeClaimTemplates:
+    - metadata:
+        name: data-ebs
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+        storageClassName: ebs-sc
