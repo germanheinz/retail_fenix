@@ -19,6 +19,7 @@ spec:
       labels:
         app: catalog # this label connects the Pod to the Deployment and to the Service
     spec:
+      serviceAccountName: catalog-mysql-sa
       securityContext:
         runAsNonRoot: true # process inside the container cannot run as root
       containers:
@@ -33,7 +34,7 @@ spec:
             - configMapRef:
                 name: catalog # injects RETAIL_CATALOG_PERSISTENCE_* vars
             - secretRef:
-                name: catalog-db
+                name: catalog-db # synced from AWS Secrets Manager via SecretProviderClass
           resources:
             requests:             # what K8s reserves on the node to schedule this Pod
               cpu: "250m"         # 250 millicores = 0.25 of a core
@@ -56,8 +57,9 @@ spec:
             periodSeconds: 10
             failureThreshold: 3
           volumeMounts:
-            - name: tmp
-              mountPath: /tmp               # Tomcat needs to write temp files here
+            - name: aws-secrets
+              mountPath: /mnt/secrets-store
+              readOnly: true
           securityContext:
             runAsUser: 1000                  # numeric UID required when image defines a named user (appuser)
             runAsNonRoot: true               # double-enforced at container level
@@ -67,5 +69,9 @@ spec:
               drop:
                 - ALL # drops all Linux capabilities from the container (least privilege)
       volumes:
-        - name: tmp
-          emptyDir: {}                       # in-memory writable volume for /tmp, discarded when Pod stops
+        - name: aws-secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "catalog-db-secrets"
