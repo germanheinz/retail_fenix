@@ -53,6 +53,7 @@ terraform plan
 # Terraform Apply
 terraform apply -auto-approve
 ```
+# aws eks update-kubeconfig --region us-east-1 --name retail-dev-eksdemo1    
 
 ---
 
