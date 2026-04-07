@@ -792,14 +792,22 @@ http://localhost:7080/catalog/tags
 --- 
 
 ## Step-09: Connect to MySQL Database and Verify
+
+> ⚠️ **Important:** MySQL only creates the user defined in `MYSQL_USER` on **first initialization**. If the EBS volume already contains data from a previous run, the user will not be recreated. In that case, connect as `root` first and create the user manually, or delete the PVC and let MySQL reinitialize from scratch.
+>
+> If you get `Access denied for user 'mydbadmin'`, verify with root first:
+> ```bash
+> kubectl run mysql-client --rm -it --image=mysql:8.0 --restart=Never \
+>   -- mysql -h catalog-mysql -u root -pmy-secret-pw
+> ```
+> Then check existing users: `SELECT user, host FROM mysql.user;`
+
 ```bash
-# Connect to MySQL Database using MySQL Client Pod
+# Connect to MySQL Database using MySQL Client Pod (password inline, no space after -p)
 kubectl run mysql-client --rm -it \
   --image=mysql:8.0 \
   --restart=Never \
-  -- mysql -h catalog-mysql -u mydbadmin -p
-
-When prompted for password, enter: kalyandb101
+  -- mysql -h catalog-mysql -u mydbadmin -pgerman123
 ```
 
 ### Run SQL Commands
