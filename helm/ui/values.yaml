@@ -46,6 +46,13 @@ readinessProbe:
 autoscaling:
   enabled: false
 
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  tls: []
+
 app:
   theme: "default"
   version: "v1.0.0"
