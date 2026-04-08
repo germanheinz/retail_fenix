@@ -60,3 +60,52 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/* MySQL helpers */}}
+
+{{- define "retail-fenix.mysql.fullname" -}}
+{{- include "retail-fenix.fullname" . }}-mysql
+{{- end -}}
+
+{{- define "retail-fenix.mysql.labels" -}}
+helm.sh/chart: {{ include "retail-fenix.chart" . }}
+{{ include "retail-fenix.mysql.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{- define "retail-fenix.mysql.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "retail-fenix.fullname" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: mysql
+{{- end }}
+
+{{- define "getOrGeneratePass" }}
+{{- $len := (default 16 .Length) | int -}}
+{{- $obj := (lookup "v1" .Kind .Namespace .Name).data -}}
+{{- if $obj }}
+{{- index $obj .Key -}}
+{{- else if (eq (lower .Kind) "secret") -}}
+{{- randAlphaNum $len | b64enc -}}
+{{- else -}}
+{{- randAlphaNum $len -}}
+{{- end -}}
+{{- end }}
+
+{{- define "retail-fenix.mysql.password" -}}
+{{- if not (empty .Values.app.persistence.secret.password) -}}
+    {{- .Values.app.persistence.secret.password | b64enc -}}
+{{- else -}}
+    {{- include "getOrGeneratePass" (dict "Namespace" .Release.Namespace "Kind" "Secret" "Name" .Values.app.persistence.secret.name "Key" "RETAIL_CATALOG_PERSISTENCE_PASSWORD") -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "retail-fenix.mysql.endpoint" -}}
+{{- if .Values.mysql.create -}}
+{{ include "retail-fenix.mysql.fullname" . }}:{{ .Values.mysql.service.port }}
+{{- else -}}
+{{- .Values.app.persistence.endpoint -}}
+{{- end -}}
+{{- end -}}

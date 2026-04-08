@@ -11,7 +11,7 @@ service:
 
 serviceAccount:
   create: false
-  name: "catalog-mysql-sa"
+  name: "default"
 
 podSecurityContext:
   runAsNonRoot: true
@@ -49,18 +49,9 @@ readinessProbe:
   periodSeconds: 10
   failureThreshold: 3
 
-volumeMounts:
-  - name: aws-secrets
-    mountPath: /mnt/secrets-store
-    readOnly: true
+volumeMounts: []
 
-volumes:
-  - name: aws-secrets
-    csi:
-      driver: secrets-store.csi.k8s.io
-      readOnly: true
-      volumeAttributes:
-        secretProviderClass: "catalog-db-secrets"
+volumes: []
 
 autoscaling:
   enabled: false
@@ -71,4 +62,28 @@ app:
     endpoint: ""
     database: "catalogdb"
     secret:
+      create: false
       name: catalog-db
+      username: ""
+      password: ""
+
+mysql:
+  create: false
+  image:
+    repository: public.ecr.aws/docker/library/mysql
+    pullPolicy: IfNotPresent
+    tag: "8.0"
+  service:
+    type: ClusterIP
+    port: 3306
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  persistentVolume:
+    enabled: false
+    annotations: {}
+    labels: {}
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi

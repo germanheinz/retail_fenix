@@ -3,7 +3,25 @@ image:
   pullPolicy: Always
 
 mysql:
-  create: true 
+  create: true
+  image:
+    repository: public.ecr.aws/docker/library/mysql
+    pullPolicy: IfNotPresent
+    tag: "8.0"
+  service:
+    type: ClusterIP
+    port: 3306
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  persistentVolume:
+    enabled: false
+    annotations: {}
+    labels: {}
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
 
 app:
   persistence:

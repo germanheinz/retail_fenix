@@ -40,3 +40,32 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/* DynamoDB helpers */}}
+
+{{- define "retail-fenix.dynamodb.fullname" -}}
+{{- include "retail-fenix.fullname" . }}-dynamodb
+{{- end -}}
+
+{{- define "retail-fenix.dynamodb.labels" -}}
+helm.sh/chart: {{ include "retail-fenix.chart" . }}
+{{ include "retail-fenix.dynamodb.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{- define "retail-fenix.dynamodb.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "retail-fenix.fullname" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: dynamodb
+{{- end }}
+
+{{- define "retail-fenix.dynamodb.endpoint" -}}
+{{- if and (eq "dynamodb" .Values.app.persistence.provider) .Values.dynamodb.create -}}
+{{ include "retail-fenix.dynamodb.fullname" . }}:{{ .Values.dynamodb.service.port }}
+{{- else -}}
+{{- .Values.app.persistence.dynamodb.endpoint -}}
+{{- end -}}
+{{- end -}}
