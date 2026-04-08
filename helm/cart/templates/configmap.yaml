@@ -8,5 +8,10 @@ data:
   SERVER_TOMCAT_ACCESSLOG_ENABLED: "true"
   RETAIL_CART_PERSISTENCE_PROVIDER: {{ .Values.app.persistence.provider | quote }}
   RETAIL_CART_PERSISTENCE_DYNAMODB_ENDPOINT: {{ include "retail-fenix.dynamodb.endpoint" . | quote }}
+  {{- if and (eq "dynamodb" .Values.app.persistence.provider) .Values.dynamodb.create }}
+  AWS_ACCESS_KEY_ID: "dummy"
+  AWS_SECRET_ACCESS_KEY: "dummy"
+  AWS_DEFAULT_REGION: "us-east-1"
+  {{- end }}
   RETAIL_CART_PERSISTENCE_DYNAMODB_CREATE_TABLE: {{ .Values.app.persistence.dynamodb.createTable | quote }}
   RETAIL_CART_PERSISTENCE_DYNAMODB_TABLE_NAME: {{ .Values.app.persistence.dynamodb.tableName | quote }}
