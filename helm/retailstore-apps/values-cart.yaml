@@ -1,6 +1,13 @@
 image:
   pullPolicy: Always
 
+resources:
+  requests:
+    cpu: "128m"
+    memory: "256Mi"
+  limits:
+    memory: "256Mi"
+
 app:
   persistence:
     provider: dynamodb
