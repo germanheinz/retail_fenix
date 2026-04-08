@@ -5,9 +5,11 @@ echo "--------------------------------------------"
 echo "Authenticating to Amazon Public ECR for Helm..."
 echo "--------------------------------------------"
 
-# Authenticate to Amazon Public ECR (token valid for 12 hours)
-aws ecr-public get-login-password --region us-east-1 | \
-helm registry login -u AWS --password-stdin public.ecr.aws
+# Authenticate to Amazon Public ECR
+# Note: using docker login instead of helm registry login due to Windows pipe bug
+#       Helm uses Docker's credential store automatically after docker login succeeds
+ECR_TOKEN=$(aws ecr-public get-login-password --region us-east-1)
+docker login public.ecr.aws --username AWS --password "$ECR_TOKEN"
 sleep 5
 
 echo "--------------------------------------------"
@@ -37,14 +39,14 @@ sleep 10
 # Step 04 - Orders Service
 echo "--------------------------------------------"
 echo "Installing Orders Service..."
-helm install orders oci://public.ecr.aws/i5b4r2o0/retail-fenix/chart --version 1.0.0 -f values-orders.yaml
+helm install orders oci://public.ecr.aws/i5b4r2o0/retail-fenix/orders --version 1.0.0 -f values-orders.yaml
 sleep 10
 
 
 # Step 05 - UI Service
 echo "--------------------------------------------"
 echo "Installing UI Service..."
-helm install ui oci://public.ecr.aws/i5b4r2o0/retail-fenix/chart --version 1.0.0 -f values-ui.yaml
+helm install ui oci://public.ecr.aws/i5b4r2o0/retail-fenix/ui --version 1.0.0 -f values-ui.yaml
 sleep 10
 
 echo

@@ -386,3 +386,48 @@ Key differences per service:
 - `service.port` — the port the service listens on
 - `configmap.yaml` — environment variables specific to that service
 - `app.persistence` — only needed for services that connect to a DB
+
+---
+
+## Troubleshooting
+
+### ECR Login fails on Windows — "the stub received bad data"
+
+**Problema:** Al intentar hacer login a ECR Public en Windows (Git Bash o PowerShell) usando el pipe `|`, aparece el error:
+
+```
+the stub received bad data
+```
+
+O al usar `--password-stdin`:
+
+```
+failed to perform exits on destination HEAD
+```
+
+**Causa:** El AWS CLI v2 en Windows usa un wrapper `.exe` que no es compatible con el pipe estándar de PowerShell ni de Git Bash.
+
+**Solución:** Usar `docker login` en lugar de `helm registry login`. Helm usa el mismo credential store que Docker, por lo que si Docker está logueado, Helm también puede hacer push.
+
+```powershell
+# Paso 1 — Capturar el token en una variable (no usar pipe directo)
+$token = & "C:\Program Files\Amazon\AWSCLIV2\aws.exe" ecr-public get-login-password --region us-east-1
+
+# Paso 2 — Login con Docker en lugar de Helm
+docker login public.ecr.aws --username AWS --password $token
+
+# Paso 3 — Push con Helm (usa las credenciales de Docker automáticamente)
+helm push catalog-1.0.0.tgz oci://public.ecr.aws/i5b4r2o0/retail-fenix
+```
+
+> Usar `& "C:\full\path\aws.exe"` en lugar de solo `aws` resuelve el problema de que PowerShell no encuentre el comando en el PATH.
+
+**Por qué funciona:** Helm delega la autenticación al credential store del sistema (el mismo que usa Docker). Al hacer `docker login`, las credenciales quedan guardadas y Helm las usa automáticamente al hacer `helm push`.
+
+---
+
+### ECR Push devuelve 403 Forbidden
+
+**Causa:** El token de ECR expira rápidamente. Si pasó tiempo entre el login y el push, el token ya no es válido.
+
+**Solución:** Hacer el login y el push en la misma sesión sin pausa.
