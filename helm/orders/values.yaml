@@ -1,0 +1,67 @@
+replicaCount: 1
+
+image:
+  repository: public.ecr.aws/i5b4r2o0/retail-fenix/orders
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+serviceAccount:
+  create: false
+  name: "default"
+
+podSecurityContext:
+  runAsNonRoot: true
+
+securityContext:
+  runAsUser: 1000
+  runAsNonRoot: true
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+resources:
+  requests:
+    cpu: "256m"
+    memory: "512Mi"
+  limits:
+    memory: "512Mi"
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health
+    port: 8080
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health
+    port: 8080
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 3
+
+autoscaling:
+  enabled: false
+
+app:
+  persistence:
+    provider: postgres
+    endpoint: "orders-db:5432"
+    database: "orders"
+    secret:
+      name: orders-db       # synced from AWS Secrets Manager
+  messaging:
+    provider: rabbitmq
+    rabbitmq:
+      addresses: "rabbitmq:5672"
+      username: "rabbitmq"
+      secret:
+        name: orders-rabbitmq  # synced from AWS Secrets Manager

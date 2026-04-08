@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "retail-fenix.fullname" . }}
+  labels:
+    {{- include "retail-fenix.labels" . | nindent 4 }}
+data:
+  RETAIL_UI_ENDPOINTS_CATALOG: {{ .Values.app.endpoints.catalog | quote }}
+  RETAIL_UI_ENDPOINTS_CARTS: {{ .Values.app.endpoints.carts | quote }}
+  RETAIL_UI_ENDPOINTS_ORDERS: {{ .Values.app.endpoints.orders | quote }}
+  RETAIL_UI_ENDPOINTS_CHECKOUT: {{ .Values.app.endpoints.checkout | quote }}
+  RETAIL_UI_THEME: {{ .Values.app.theme | quote }}
+  RETAIL_UI_VERSION: {{ .Values.app.version | quote }}
