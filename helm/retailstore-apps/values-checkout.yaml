@@ -1,3 +1,8 @@
+image:
+  repository: public.ecr.aws/i5b4r2o0/retail-fenix/checkout
+  pullPolicy: Always
+  tag: "1.0.0"
+
 app:
   persistence:
     provider: 'redis' 
