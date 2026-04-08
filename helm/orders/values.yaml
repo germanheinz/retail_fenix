@@ -65,11 +65,62 @@ app:
     endpoint: "orders-db:5432"
     database: "orders"
     secret:
-      name: orders-db       # synced from AWS Secrets Manager
+      create: false
+      name: orders-db
+      username: ""
+      password: ""
   messaging:
     provider: rabbitmq
     rabbitmq:
-      addresses: "rabbitmq:5672"
-      username: "rabbitmq"
+      addresses:
+        - "rabbitmq:5672"
       secret:
-        name: orders-rabbitmq  # synced from AWS Secrets Manager
+        create: false
+        name: orders-rabbitmq
+        username: ""
+        password: ""
+
+postgresql:
+  create: false
+  image:
+    repository: public.ecr.aws/docker/library/postgres
+    pullPolicy: IfNotPresent
+    tag: "16.1"
+  service:
+    type: ClusterIP
+    port: 5432
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  persistentVolume:
+    enabled: false
+    annotations: {}
+    labels: {}
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+
+rabbitmq:
+  create: false
+  image:
+    repository: "public.ecr.aws/docker/library/rabbitmq"
+    pullPolicy: IfNotPresent
+    tag: "3-management"
+  service:
+    type: ClusterIP
+    amqp:
+      port: 5672
+    http:
+      port: 15672
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  persistentVolume:
+    enabled: false
+    annotations: {}
+    labels: {}
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi

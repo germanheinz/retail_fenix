@@ -7,8 +7,7 @@ metadata:
 data:
   SERVER_TOMCAT_ACCESSLOG_ENABLED: "true"
   RETAIL_ORDERS_PERSISTENCE_PROVIDER: {{ .Values.app.persistence.provider | quote }}
-  RETAIL_ORDERS_PERSISTENCE_ENDPOINT: {{ .Values.app.persistence.endpoint | quote }}
+  RETAIL_ORDERS_PERSISTENCE_ENDPOINT: {{ include "retail-fenix.postgresql.endpoint" . | quote }}
   RETAIL_ORDERS_PERSISTENCE_NAME: {{ .Values.app.persistence.database | quote }}
   RETAIL_ORDERS_MESSAGING_PROVIDER: {{ .Values.app.messaging.provider | quote }}
-  RETAIL_ORDERS_MESSAGING_RABBITMQ_ADDRESSES: {{ .Values.app.messaging.rabbitmq.addresses | quote }}
-  RETAIL_ORDERS_MESSAGING_RABBITMQ_USERNAME: {{ .Values.app.messaging.rabbitmq.username | quote }}
+  RETAIL_ORDERS_MESSAGING_RABBITMQ_ADDRESSES: {{ include "retail-fenix.rabbitmq.addresses" . | quote }}

@@ -4,7 +4,7 @@ image:
 app:
   persistence:
     provider: 'postgres'
-    endpoint: ''
+    endpoint: 'orders-db:5432'
     database: 'orders'
     secret:
       create: true
