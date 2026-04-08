@@ -1,4 +1,7 @@
 # Catalog Custom Values
+image:
+  pullPolicy: Always
+
 mysql:
   create: true 
 

@@ -1,4 +1,7 @@
-app: 
+image:
+  pullPolicy: Always
+
+app:
   persistence:
     provider: 'postgres'
     endpoint: ''
