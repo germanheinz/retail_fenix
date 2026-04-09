@@ -1,0 +1,82 @@
+replicaCount: 1
+
+image:
+  repository: public.ecr.aws/i5b4r2o0/retail-fenix/cart
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+serviceAccount:
+  create: false
+  name: "default"
+
+podSecurityContext:
+  runAsNonRoot: true
+
+securityContext:
+  runAsUser: 1000
+  runAsNonRoot: true
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+resources:
+  requests:
+    cpu: "256m"
+    memory: "512Mi"
+  limits:
+    memory: "512Mi"
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health
+    port: 8080
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health
+    port: 8080
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 3
+
+volumeMounts:
+  - name: tmp-dir
+    mountPath: /tmp
+
+volumes:
+  - name: tmp-dir
+    emptyDir: {}
+
+autoscaling:
+  enabled: false
+
+app:
+  persistence:
+    provider: dynamodb
+    dynamodb:
+      endpoint: ""
+      createTable: true
+      tableName: Items
+
+dynamodb:
+  create: false
+  image:
+    repository: public.ecr.aws/aws-dynamodb-local/aws-dynamodb-local
+    pullPolicy: IfNotPresent
+    tag: "1.25.1"
+  service:
+    type: ClusterIP
+    port: 8000
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}

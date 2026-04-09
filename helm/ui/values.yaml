@@ -1,0 +1,63 @@
+replicaCount: 1
+
+image:
+  repository: public.ecr.aws/i5b4r2o0/retail-fenix/ui
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3000
+
+serviceAccount:
+  create: false
+  name: "default"
+
+podSecurityContext: {}
+
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+
+resources:
+  requests:
+    cpu: "256m"
+    memory: "512Mi"
+  limits:
+    memory: "512Mi"
+
+livenessProbe:
+  httpGet:
+    path: /api/health
+    port: 3000
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /api/health
+    port: 3000
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 3
+
+autoscaling:
+  enabled: false
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  tls: []
+
+app:
+  theme: "default"
+  version: "v1.0.0"
+  endpoints:
+    catalog: "http://catalog:8080"
+    carts: "http://carts:8080"
+    orders: "http://orders:8080"
+    checkout: "http://checkout:8080"
