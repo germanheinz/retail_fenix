@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "retail-fenix.fullname" . }}
+  labels:
+    {{- include "retail-fenix.labels" . | nindent 4 }}
+data:
+  RETAIL_CHECKOUT_PERSISTENCE_PROVIDER: {{ .Values.app.persistence.provider | quote }}
+  RETAIL_CHECKOUT_PERSISTENCE_REDIS_URL: {{ .Values.app.persistence.redis.url | quote }}
+  RETAIL_CHECKOUT_ENDPOINTS_ORDERS: {{ .Values.app.endpoints.orders | quote }}

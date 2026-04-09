@@ -1,0 +1,126 @@
+replicaCount: 1
+
+image:
+  repository: public.ecr.aws/i5b4r2o0/retail-fenix/orders
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+serviceAccount:
+  create: false
+  name: "default"
+
+podSecurityContext:
+  runAsNonRoot: true
+
+securityContext:
+  runAsUser: 1000
+  runAsNonRoot: true
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+resources:
+  requests:
+    cpu: "256m"
+    memory: "512Mi"
+  limits:
+    memory: "512Mi"
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health
+    port: 8080
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health
+    port: 8080
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 3
+
+volumeMounts:
+  - name: tmp-dir
+    mountPath: /tmp
+
+volumes:
+  - name: tmp-dir
+    emptyDir: {}
+
+autoscaling:
+  enabled: false
+
+app:
+  persistence:
+    provider: postgres
+    endpoint: "orders-db:5432"
+    database: "orders"
+    secret:
+      create: false
+      name: orders-db
+      username: ""
+      password: ""
+  messaging:
+    provider: rabbitmq
+    rabbitmq:
+      addresses:
+        - "rabbitmq:5672"
+      secret:
+        create: false
+        name: orders-rabbitmq
+        username: ""
+        password: ""
+
+postgresql:
+  create: false
+  image:
+    repository: public.ecr.aws/docker/library/postgres
+    pullPolicy: IfNotPresent
+    tag: "16.1"
+  service:
+    type: ClusterIP
+    port: 5432
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  persistentVolume:
+    enabled: false
+    annotations: {}
+    labels: {}
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+
+rabbitmq:
+  create: false
+  image:
+    repository: "public.ecr.aws/docker/library/rabbitmq"
+    pullPolicy: IfNotPresent
+    tag: "3-management"
+  service:
+    type: ClusterIP
+    amqp:
+      port: 5672
+    http:
+      port: 15672
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  persistentVolume:
+    enabled: false
+    annotations: {}
+    labels: {}
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi

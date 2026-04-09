@@ -1,0 +1,24 @@
+# ? Headless Service (clusterIP: None) does NOT load-balance — it returns the Pod IP directly via DNS.
+# ? Required by StatefulSet so each Pod gets a stable DNS entry:
+# ?   catalog-mysql-0.catalog-mysql.default.svc.cluster.local:3306
+# ? This is the value used in the ConfigMap as RETAIL_CATALOG_PERSISTENCE_ENDPOINT.
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-mysql # ? MATCH (1): must equal serviceName in the StatefulSet (04_catalog_statefulset.yaml)
+  labels:
+    app.kubernetes.io/name: catalog
+    app.kubernetes.io/instance: catalog
+    app.kubernetes.io/component: mysql
+    app.kubernetes.io/owner: retail-fenix
+spec:
+  clusterIP: None   # Headless service
+  ports:
+    - port: 3306
+      targetPort: mysql
+      name: mysql
+  selector:
+    app.kubernetes.io/name: catalog      # ? MATCH (2): must equal matchLabels in the StatefulSet selector
+    app.kubernetes.io/instance: catalog  # ? MATCH (2): Kubernetes uses these to find the StatefulSet Pods
+    app.kubernetes.io/component: mysql   # ? MATCH (2): and assign them a DNS name via this Headless Service
+    app.kubernetes.io/owner: retail-fenix

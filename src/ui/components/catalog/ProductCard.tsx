@@ -46,11 +46,11 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
 
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 line-clamp-1 group-hover:text-indigo-600 transition-colors">
-              {product.name}
+            <h3 className="text-sm font-bold text-gray-900 line-clamp-1 group-hover:text-indigo-600 transition-colors">
+              {product.artist ?? product.name}
             </h3>
             {product.artist && (
-              <p className="text-xs text-gray-500 mt-0.5">{product.artist}</p>
+              <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{product.name}</p>
             )}
           </div>
 

@@ -1,8 +1,5 @@
 [
   { "name": "rock", "displayName": "Rock" },
-  { "name": "electronic", "displayName": "Electronic" },
-  { "name": "jazz", "displayName": "Jazz" },
-  { "name": "hiphop", "displayName": "Hip-Hop" },
   { "name": "pop", "displayName": "Pop" },
-  { "name": "classical", "displayName": "Classical" }
+  { "name": "hiphop", "displayName": "Hip-Hop" }
 ]

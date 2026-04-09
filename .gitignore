@@ -42,6 +42,13 @@ desktop.ini
 *.suo
 *.user
 
+# ─── Terraform ────────────────────────────────────────────
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+.terraform.lock.hcl
+
 # ─── Logs & Temp ──────────────────────────────────────────
 *.log
 *.tmp
