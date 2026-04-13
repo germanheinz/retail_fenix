@@ -1,7 +1,17 @@
 rabbitmq:
   create: true
 
+resources:
+  limits:
+    cpu: 512m
+    memory: 512Mi
+  requests:
+    cpu: 256m
+    memory: 512Mi
+
 autoscaling:
   enabled: true
+  minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80

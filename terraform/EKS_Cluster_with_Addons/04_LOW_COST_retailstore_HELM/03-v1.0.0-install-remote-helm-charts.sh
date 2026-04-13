@@ -52,7 +52,7 @@ helm upgrade --install catalog \
   --version ${VERSION_CATALOG} \
   -f values-catalog.yaml \
   --wait \
-  --timeout 5m
+  --timeout 10m
 
 echo "✅ Catalog service installed successfully"
 sleep 5
@@ -97,7 +97,7 @@ helm upgrade --install orders \
   --version ${VERSION_ORDERS} \
   -f values-orders.yaml \
   --wait \
-  --timeout 5m
+  --timeout 10m
 
 echo "✅ Orders service installed successfully"
 sleep 5
