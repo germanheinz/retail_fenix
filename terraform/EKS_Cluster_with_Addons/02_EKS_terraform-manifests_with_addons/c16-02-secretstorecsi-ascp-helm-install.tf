@@ -11,7 +11,7 @@ resource "helm_release" "aws_secrets_provider" {
   repository = "https://aws.github.io/secrets-store-csi-driver-provider-aws"
   chart      = "secrets-store-csi-driver-provider-aws"
   namespace  = "kube-system"
-
+  version    = "0.3.9" 
   # Disable re-installation of CSI driver (already installed separately)
   set = [ 
     {
