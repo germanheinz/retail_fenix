@@ -15,9 +15,10 @@ data "aws_eks_addon_version" "ebs_csi_latest" {
 resource "aws_eks_addon" "ebs_csi" {
   depends_on = [
     aws_iam_role.ebs_csi_iam_role,
+    aws_iam_role_policy_attachment.ebs_csi_managed_policy_attach,
     aws_eks_pod_identity_association.ebs_csi,
     aws_eks_addon.podidentity,
-    aws_eks_node_group.private_nodes
+    aws_eks_node_group.private_nodes,
   ]
   cluster_name                = aws_eks_cluster.main.name
   addon_name                  = "aws-ebs-csi-driver"

@@ -109,3 +109,10 @@ variable "node_disk_size" {
   default     = 20
 }
 
+# Desired number of worker nodes at launch
+variable "node_desired_size" {
+  description = "Desired number of worker nodes in the node group"
+  type        = number
+  default     = 1
+}
+

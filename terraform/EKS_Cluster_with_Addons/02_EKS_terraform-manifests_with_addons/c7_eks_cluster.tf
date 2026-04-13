@@ -32,14 +32,11 @@ resource "aws_eks_cluster" "main" {
     service_ipv4_cidr = var.cluster_service_ipv4_cidr
   }
 
-  # Enable EKS control plane logging for visibility and debugging
-  enabled_cluster_log_types = [
-    "api",                 # API server audit logs
-    "audit",               # Kubernetes audit logs
-    "authenticator",       # Authenticator logs for IAM auth
-    "controllerManager",   # Logs for controller manager
-    "scheduler"            # Logs for pod scheduling
-  ]
+  # Control plane logging disabled for dev/Free Tier
+  # Enabling all 5 types generates CloudWatch costs (not Free Tier eligible)
+  # Uncomment for production:
+  # enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+  enabled_cluster_log_types = []
 
   # Ensure IAM policy attachments complete before cluster creation
   # Helps avoid race conditions during provisioning and destroy

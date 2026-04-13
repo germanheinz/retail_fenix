@@ -2,10 +2,11 @@
 resource "helm_release" "loadbalancer_controller" {
   depends_on = [
     aws_iam_role.lbc_iam_role,
+    aws_iam_role_policy_attachment.lbc_iam_role_policy_attach,
     aws_eks_node_group.private_nodes,
     aws_eks_pod_identity_association.lbc,
-    aws_eks_addon.podidentity
-    ]        
+    aws_eks_addon.podidentity,
+  ]
 
   name       = "aws-load-balancer-controller"
   repository = "https://aws.github.io/eks-charts"
