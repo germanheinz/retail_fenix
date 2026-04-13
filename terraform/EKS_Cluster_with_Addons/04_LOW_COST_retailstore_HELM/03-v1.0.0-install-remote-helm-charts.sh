@@ -5,12 +5,23 @@
 set -e
 
 ECR_REGISTRY="public.ecr.aws/i5b4r2o0/retail-fenix/charts"
-CHART_VERSION="1.0.2"
+
+# Chart versions per service (update independently as needed)
+VERSION_CATALOG="1.0.2"
+VERSION_CART="1.0.2"
+VERSION_CHECKOUT="1.0.2"
+VERSION_ORDERS="1.0.2"
+VERSION_UI="1.0.2"
 
 echo "============================================"
 echo "Retail Store Sample App - Helm Installation"
 echo "Registry: oci://${ECR_REGISTRY}"
-echo "Version:  ${CHART_VERSION}"
+echo "Versions:"
+echo "  catalog:  ${VERSION_CATALOG}"
+echo "  cart:     ${VERSION_CART}"
+echo "  checkout: ${VERSION_CHECKOUT}"
+echo "  orders:   ${VERSION_ORDERS}"
+echo "  ui:       ${VERSION_UI}"
 echo "============================================"
 echo
 
@@ -38,7 +49,7 @@ echo "Step 1/5: Installing Catalog Service..."
 echo "--------------------------------------------"
 helm upgrade --install catalog \
   oci://${ECR_REGISTRY}/catalog \
-  --version ${CHART_VERSION} \
+  --version ${VERSION_CATALOG} \
   -f values-catalog.yaml \
   --wait \
   --timeout 5m
@@ -53,7 +64,7 @@ echo "Step 2/5: Installing Cart Service..."
 echo "--------------------------------------------"
 helm upgrade --install carts \
   oci://${ECR_REGISTRY}/cart \
-  --version ${CHART_VERSION} \
+  --version ${VERSION_CART} \
   -f values-cart.yaml \
   --wait \
   --timeout 5m
@@ -68,7 +79,7 @@ echo "Step 3/5: Installing Checkout Service..."
 echo "--------------------------------------------"
 helm upgrade --install checkout \
   oci://${ECR_REGISTRY}/checkout \
-  --version ${CHART_VERSION} \
+  --version ${VERSION_CHECKOUT} \
   -f values-checkout.yaml \
   --wait \
   --timeout 5m
@@ -83,7 +94,7 @@ echo "Step 4/5: Installing Orders Service..."
 echo "--------------------------------------------"
 helm upgrade --install orders \
   oci://${ECR_REGISTRY}/orders \
-  --version ${CHART_VERSION} \
+  --version ${VERSION_ORDERS} \
   -f values-orders.yaml \
   --wait \
   --timeout 5m
@@ -98,7 +109,7 @@ echo "Step 5/5: Installing UI Service..."
 echo "--------------------------------------------"
 helm upgrade --install ui \
   oci://${ECR_REGISTRY}/ui \
-  --version ${CHART_VERSION} \
+  --version ${VERSION_UI} \
   -f values-ui.yaml \
   --wait \
   --timeout 5m
