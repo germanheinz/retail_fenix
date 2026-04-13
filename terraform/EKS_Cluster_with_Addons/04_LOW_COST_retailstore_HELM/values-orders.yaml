@@ -1,6 +1,14 @@
 rabbitmq:
   create: true
 
+app:
+  persistence:
+    secret:
+      create: true
+      name: orders-db
+      username: orders_user
+      password: orders_pass123
+
 resources:
   limits:
     cpu: 512m

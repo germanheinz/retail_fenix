@@ -1,6 +1,14 @@
 mysql:
   create: true
 
+app:
+  persistence:
+    secret:
+      create: true
+      name: catalog-db
+      username: catalog_user
+      password: catalog_pass123
+
 resources:
   limits:
     cpu: 512m
