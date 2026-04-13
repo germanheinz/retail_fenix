@@ -1,22 +1,29 @@
 #!/bin/bash
 # 03-v1.0.0-install-remote-helm-charts.sh
+# Installs Retail Fenix services from ECR Public OCI registry
 # Helm Charts which doesn't need Secrets from AWS Secrets Manager
 set -e
 
+ECR_REGISTRY="public.ecr.aws/i5b4r2o0/retail-fenix/charts"
+CHART_VERSION="1.0.2"
+
 echo "============================================"
 echo "Retail Store Sample App - Helm Installation"
+echo "Registry: oci://${ECR_REGISTRY}"
+echo "Version:  ${CHART_VERSION}"
 echo "============================================"
 echo
 
 echo "--------------------------------------------"
-echo "Adding Helm Repository..."
+echo "Authenticating to Amazon Public ECR..."
 echo "--------------------------------------------"
 
-# Add Helm repository
-helm repo add stacksimplify https://stacksimplify.github.io/helm-charts
-helm repo update
+# Note: using docker login instead of helm registry login due to Windows pipe bug
+#       Helm uses Docker's credential store automatically after docker login succeeds
+ECR_TOKEN=$(aws ecr-public get-login-password --region us-east-1)
+docker login public.ecr.aws --username AWS --password "$ECR_TOKEN"
 
-echo "✅ Helm repository added and updated"
+echo "✅ Authenticated to ECR"
 sleep 3
 
 echo
@@ -29,8 +36,9 @@ echo
 echo "--------------------------------------------"
 echo "Step 1/5: Installing Catalog Service..."
 echo "--------------------------------------------"
-helm upgrade --install catalog stacksimplify/retail-store-sample-catalog-chart \
-  --version 1.0.0 \
+helm upgrade --install catalog \
+  oci://${ECR_REGISTRY}/catalog \
+  --version ${CHART_VERSION} \
   -f values-catalog.yaml \
   --wait \
   --timeout 5m
@@ -43,8 +51,9 @@ echo
 echo "--------------------------------------------"
 echo "Step 2/5: Installing Cart Service..."
 echo "--------------------------------------------"
-helm upgrade --install carts stacksimplify/retail-store-sample-cart-chart \
-  --version 1.0.0 \
+helm upgrade --install carts \
+  oci://${ECR_REGISTRY}/cart \
+  --version ${CHART_VERSION} \
   -f values-cart.yaml \
   --wait \
   --timeout 5m
@@ -57,8 +66,9 @@ echo
 echo "--------------------------------------------"
 echo "Step 3/5: Installing Checkout Service..."
 echo "--------------------------------------------"
-helm upgrade --install checkout stacksimplify/retail-store-sample-checkout-chart \
-  --version 1.0.0 \
+helm upgrade --install checkout \
+  oci://${ECR_REGISTRY}/checkout \
+  --version ${CHART_VERSION} \
   -f values-checkout.yaml \
   --wait \
   --timeout 5m
@@ -71,8 +81,9 @@ echo
 echo "--------------------------------------------"
 echo "Step 4/5: Installing Orders Service..."
 echo "--------------------------------------------"
-helm upgrade --install orders stacksimplify/retail-store-sample-orders-chart \
-  --version 1.0.0 \
+helm upgrade --install orders \
+  oci://${ECR_REGISTRY}/orders \
+  --version ${CHART_VERSION} \
   -f values-orders.yaml \
   --wait \
   --timeout 5m
@@ -85,8 +96,9 @@ echo
 echo "--------------------------------------------"
 echo "Step 5/5: Installing UI Service..."
 echo "--------------------------------------------"
-helm upgrade --install ui stacksimplify/retail-store-sample-ui-chart \
-  --version 1.0.0 \
+helm upgrade --install ui \
+  oci://${ECR_REGISTRY}/ui \
+  --version ${CHART_VERSION} \
   -f values-ui.yaml \
   --wait \
   --timeout 5m
@@ -99,32 +111,26 @@ echo "============================================"
 echo "Installation Summary"
 echo "============================================"
 
-# Display installed releases
 echo
 echo "Installed Helm Releases:"
 helm list
 
-# Display Deployed releases
 echo
 echo "Deployed Pods:"
 kubectl get pods -o wide
 
-# Display Deployed Services
 echo
 echo "Services:"
 kubectl get svc
 
-# Display Service Accounts
 echo
 echo "Service Accounts:"
 kubectl get sa
 
-# Display ConfigMaps
 echo
 echo "ConfigMaps:"
 kubectl get cm
 
-# Display Ingress Service
 echo
 echo "Ingress Service:"
 kubectl get ingress
@@ -138,4 +144,3 @@ echo "Next Steps:"
 echo "1. Verify all pods are running: kubectl get pods"
 echo "2. Check service endpoints: kubectl get svc"
 echo "3. Access the Ingress service ADDRESS to test the application"
-echo 

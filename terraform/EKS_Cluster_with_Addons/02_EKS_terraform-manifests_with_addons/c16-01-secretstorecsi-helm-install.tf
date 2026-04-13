@@ -9,7 +9,7 @@ resource "helm_release" "secrets_store_csi_driver" {
   repository = "https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts"
   chart      = "secrets-store-csi-driver"
   namespace  = "kube-system"
-  version    = "1.4.6" 
+  version    = "1.4.6"  # 1.5.0+ requires cert-manager for ValidatingWebhook
   set = [
     {
       name  = "syncSecret.enabled"
