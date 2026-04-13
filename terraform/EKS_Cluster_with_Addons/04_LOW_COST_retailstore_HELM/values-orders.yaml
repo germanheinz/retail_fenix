@@ -1,13 +1,38 @@
+# Deploy PostgreSQL in-cluster (emptyDir, no PVC needed)
+postgresql:
+  create: true
+
+# Deploy RabbitMQ in-cluster
 rabbitmq:
   create: true
 
 app:
   persistence:
+    provider: postgres
+    database: "orders"
     secret:
       create: true
       name: orders-db
       username: orders_user
       password: orders_pass123
+  messaging:
+    provider: rabbitmq
+    rabbitmq:
+      secret:
+        create: true
+        name: orders-rabbitmq
+        username: "guest"
+        password: "guest"
+
+livenessProbe:
+  initialDelaySeconds: 60
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  initialDelaySeconds: 20
+  periodSeconds: 10
+  failureThreshold: 3
 
 resources:
   limits:

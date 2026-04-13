@@ -64,7 +64,7 @@ app.kubernetes.io/component: dynamodb
 
 {{- define "retail-fenix.dynamodb.endpoint" -}}
 {{- if and (eq "dynamodb" .Values.app.persistence.provider) .Values.dynamodb.create -}}
-{{ include "retail-fenix.dynamodb.fullname" . }}:{{ .Values.dynamodb.service.port }}
+http://{{ include "retail-fenix.dynamodb.fullname" . }}:{{ .Values.dynamodb.service.port }}
 {{- else -}}
 {{- .Values.app.persistence.dynamodb.endpoint -}}
 {{- end -}}

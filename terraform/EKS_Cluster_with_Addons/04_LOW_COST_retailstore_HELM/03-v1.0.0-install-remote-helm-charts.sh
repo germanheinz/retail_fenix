@@ -38,6 +38,22 @@ echo "✅ Authenticated to ECR"
 sleep 3
 
 echo
+echo "--------------------------------------------"
+echo "Pre-requisite: Installing Redis for Checkout..."
+echo "--------------------------------------------"
+helm repo add bitnami https://charts.bitnami.com/bitnami 2>/dev/null || true
+helm repo update
+helm upgrade --install checkout-redis bitnami/redis \
+  --set auth.enabled=false \
+  --set architecture=standalone \
+  --set master.persistence.enabled=false \
+  --wait \
+  --timeout 5m
+
+echo "✅ Redis installed (checkout-redis-master:6379)"
+sleep 3
+
+echo
 echo "============================================"
 echo "Starting Helm Installations..."
 echo "============================================"
@@ -58,13 +74,14 @@ echo "✅ Catalog service installed successfully"
 sleep 5
 
 # Step 02 - Cart Service
+# Uses local chart to fix AWS_REGION env var for DynamoDB Local (SDK v2 requires AWS_REGION, not AWS_DEFAULT_REGION)
 echo
 echo "--------------------------------------------"
-echo "Step 2/5: Installing Cart Service..."
+echo "Step 2/5: Installing Cart Service (local chart)..."
 echo "--------------------------------------------"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 helm upgrade --install carts \
-  oci://${ECR_REGISTRY}/cart \
-  --version ${VERSION_CART} \
+  "${SCRIPT_DIR}/../../../helm/cart" \
   -f values-cart.yaml \
   --wait \
   --timeout 5m

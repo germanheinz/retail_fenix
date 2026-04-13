@@ -1,3 +1,22 @@
+app:
+  persistence:
+    provider: redis
+    redis:
+      # Bitnami Redis standalone: release name "checkout-redis" → service "checkout-redis-master"
+      url: "redis://checkout-redis-master:6379"
+  endpoints:
+    orders: "http://orders:8080"
+
+livenessProbe:
+  initialDelaySeconds: 45
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 3
+
 resources:
   limits:
     cpu: 256m

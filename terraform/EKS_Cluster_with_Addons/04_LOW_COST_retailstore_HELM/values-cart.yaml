@@ -1,10 +1,31 @@
+app:
+  persistence:
+    provider: dynamodb
+    dynamodb:
+      createTable: true
+      tableName: Items
+
+# Deploy DynamoDB Local in-cluster (no AWS DynamoDB needed)
+dynamodb:
+  create: true
+
+livenessProbe:
+  initialDelaySeconds: 45
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 3
+
 resources:
   limits:
     cpu: 256m
-    memory: 256Mi
+    memory: 512Mi
   requests:
     cpu: 128m
-    memory: 128Mi
+    memory: 256Mi
 
 autoscaling:
   enabled: true
