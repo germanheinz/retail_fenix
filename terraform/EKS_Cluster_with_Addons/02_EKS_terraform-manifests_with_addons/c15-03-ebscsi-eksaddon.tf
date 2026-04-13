@@ -29,6 +29,14 @@ resource "aws_eks_addon" "ebs_csi" {
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
 
+  # Single controller replica — t3.medium has a hard max of 17 pods (ENI limit)
+  # Full observability stack (02_EKS + 03_OPENTELEMETRY) needs ~17 pods total
+  configuration_values = jsonencode({
+    controller = {
+      replicaCount = 1
+    }
+  })
+
   tags = {
     Name        = "${local.name}-aws-ebs-csi-addon"
     Environment = var.environment_name
