@@ -83,9 +83,19 @@ log "Initializing Terraform..."
 terraform init -reconfigure -input=false > /dev/null
 
 # Import pre-existing IAM roles if they exist in AWS but not in Terraform state
-CLUSTER_NAME_PREFIX="retail-dev"
+# Derive prefix from Terraform variable defaults to stay in sync with local.name
+TF_VARS_FILE="${SCRIPT_DIR}/03_KARPENTER_terraform-manifests/c2_variables.tf"
+BUSINESS_DIVISION=$(grep -A2 'variable "business_division"' "$TF_VARS_FILE" | grep 'default' | sed 's/.*default\s*=\s*"\(.*\)".*/\1/')
+ENVIRONMENT_NAME=$(grep -A2 'variable "environment_name"' "$TF_VARS_FILE" | grep 'default' | sed 's/.*default\s*=\s*"\(.*\)".*/\1/')
+CLUSTER_NAME_PREFIX="${BUSINESS_DIVISION}-${ENVIRONMENT_NAME}"
 CONTROLLER_ROLE="${CLUSTER_NAME_PREFIX}-karpenter-controller-role"
 NODE_ROLE="${CLUSTER_NAME_PREFIX}-karpenter-node-role"
+
+if [[ -z "$BUSINESS_DIVISION" || -z "$ENVIRONMENT_NAME" ]]; then
+  error "Could not derive role name prefix from ${TF_VARS_FILE}. Check business_division and environment_name defaults."
+fi
+
+log "Using IAM role prefix: ${CLUSTER_NAME_PREFIX}"
 
 if aws iam get-role --role-name "$CONTROLLER_ROLE" &>/dev/null; then
   if ! terraform state show aws_iam_role.karpenter_controller &>/dev/null; then
@@ -100,6 +110,19 @@ if aws iam get-role --role-name "$NODE_ROLE" &>/dev/null; then
     warn "IAM role '${NODE_ROLE}' exists in AWS but not in state — importing..."
     terraform import -input=false aws_iam_role.karpenter_node "$NODE_ROLE"
     log "Imported karpenter_node role."
+  fi
+fi
+
+CONTROLLER_POLICY="${CLUSTER_NAME_PREFIX}-karpenter-controller-policy"
+CONTROLLER_POLICY_ARN=$(aws iam list-policies --scope Local \
+  --query "Policies[?PolicyName=='${CONTROLLER_POLICY}'].Arn" \
+  --output text 2>/dev/null)
+
+if [[ -n "$CONTROLLER_POLICY_ARN" ]]; then
+  if ! terraform state show aws_iam_policy.karpenter_controller &>/dev/null; then
+    warn "IAM policy '${CONTROLLER_POLICY}' exists in AWS but not in state — importing..."
+    terraform import -input=false aws_iam_policy.karpenter_controller "$CONTROLLER_POLICY_ARN"
+    log "Imported karpenter_controller policy."
   fi
 fi
 
