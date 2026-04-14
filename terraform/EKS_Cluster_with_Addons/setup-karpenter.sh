@@ -82,6 +82,27 @@ cd "${SCRIPT_DIR}/03_KARPENTER_terraform-manifests"
 log "Initializing Terraform..."
 terraform init -reconfigure -input=false > /dev/null
 
+# Import pre-existing IAM roles if they exist in AWS but not in Terraform state
+CLUSTER_NAME_PREFIX="retail-dev"
+CONTROLLER_ROLE="${CLUSTER_NAME_PREFIX}-karpenter-controller-role"
+NODE_ROLE="${CLUSTER_NAME_PREFIX}-karpenter-node-role"
+
+if aws iam get-role --role-name "$CONTROLLER_ROLE" &>/dev/null; then
+  if ! terraform state show aws_iam_role.karpenter_controller &>/dev/null; then
+    warn "IAM role '${CONTROLLER_ROLE}' exists in AWS but not in state — importing..."
+    terraform import -input=false aws_iam_role.karpenter_controller "$CONTROLLER_ROLE"
+    log "Imported karpenter_controller role."
+  fi
+fi
+
+if aws iam get-role --role-name "$NODE_ROLE" &>/dev/null; then
+  if ! terraform state show aws_iam_role.karpenter_node &>/dev/null; then
+    warn "IAM role '${NODE_ROLE}' exists in AWS but not in state — importing..."
+    terraform import -input=false aws_iam_role.karpenter_node "$NODE_ROLE"
+    log "Imported karpenter_node role."
+  fi
+fi
+
 log "Applying Karpenter infrastructure..."
 terraform apply -auto-approve -input=false
 
