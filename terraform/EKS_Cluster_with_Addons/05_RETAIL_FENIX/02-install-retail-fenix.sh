@@ -4,14 +4,14 @@
 # Helm Charts which doesn't need Secrets from AWS Secrets Manager
 set -e
 
-ECR_REGISTRY="public.ecr.aws/retail-fenix/retail-fenix/charts"
+ECR_REGISTRY="public.ecr.aws/i5b4r2o0/retail-fenix/charts"
 
 # Chart versions per service (update independently as needed)
-VERSION_CATALOG="1.0.3"
-VERSION_CART="1.0.3"
-VERSION_CHECKOUT="1.0.2"
-VERSION_ORDERS="1.0.2"
-VERSION_UI="1.0.4"
+VERSION_CATALOG="1.1.0"
+VERSION_CART="1.1.0"
+VERSION_CHECKOUT="1.1.0"
+VERSION_ORDERS="1.1.0"
+VERSION_UI="1.1.0"
 
 echo "============================================"
 echo "Retail Store Sample App - Helm Installation"
