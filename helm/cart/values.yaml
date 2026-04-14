@@ -56,6 +56,12 @@ volumes:
   - name: tmp-dir
     emptyDir: {}
 
+podAnnotations: {}
+
+opentelemetry:
+  enabled: false
+  instrumentation: ""
+
 autoscaling:
   enabled: false
   minReplicas: 1

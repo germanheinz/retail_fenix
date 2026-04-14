@@ -1,12 +1,32 @@
+# ============================================================================
+# CHECKOUT SERVICE - CUSTOM VALUES
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# DEPENDENCIES CONFIGURATION
+# ----------------------------------------------------------------------------
 app:
   persistence:
     provider: redis
     redis:
-      # Bitnami Redis standalone: release name "checkout-redis" → service "checkout-redis-master"
       url: "redis://checkout-redis-master:6379"
   endpoints:
     orders: "http://orders:8080"
 
+# ----------------------------------------------------------------------------
+# RESOURCE MANAGEMENT
+# ----------------------------------------------------------------------------
+resources:
+  limits:
+    cpu: 256m
+    memory: 256Mi
+  requests:
+    cpu: 128m
+    memory: 128Mi
+
+# ----------------------------------------------------------------------------
+# HEALTH PROBES
+# ----------------------------------------------------------------------------
 livenessProbe:
   initialDelaySeconds: 45
   periodSeconds: 10
@@ -17,17 +37,20 @@ readinessProbe:
   periodSeconds: 10
   failureThreshold: 3
 
-resources:
-  limits:
-    cpu: 256m
-    memory: 256Mi
-  requests:
-    cpu: 128m
-    memory: 128Mi
-
+# ----------------------------------------------------------------------------
+# AUTOSCALING - HORIZONTAL POD AUTOSCALER (HPA)
+# ----------------------------------------------------------------------------
 autoscaling:
   enabled: true
   minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
+
+# ----------------------------------------------------------------------------
+# OPENTELEMETRY AUTO-INSTRUMENTATION
+# ----------------------------------------------------------------------------
+# checkout is a Node.js service — inject-sdk triggers Node.js agent injection
+opentelemetry:
+  enabled: true
+  instrumentation: "default-instrumentation"

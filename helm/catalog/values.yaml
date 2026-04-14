@@ -53,6 +53,12 @@ volumeMounts: []
 
 volumes: []
 
+podAnnotations: {}
+
+opentelemetry:
+  enabled: false
+  instrumentation: ""
+
 autoscaling:
   enabled: false
   minReplicas: 1

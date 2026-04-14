@@ -1,14 +1,26 @@
+# ============================================================================
+# CATALOG SERVICE - CUSTOM VALUES
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# DATABASE CONFIGURATION
+# ----------------------------------------------------------------------------
 mysql:
   create: true
 
 app:
   persistence:
+    provider: mysql
+    database: "catalogdb"
     secret:
       create: true
       name: catalog-db
       username: catalog_user
       password: catalog_pass123
 
+# ----------------------------------------------------------------------------
+# RESOURCE MANAGEMENT
+# ----------------------------------------------------------------------------
 resources:
   limits:
     cpu: 512m
@@ -17,9 +29,21 @@ resources:
     cpu: 256m
     memory: 256Mi
 
+# ----------------------------------------------------------------------------
+# AUTOSCALING - HORIZONTAL POD AUTOSCALER (HPA)
+# ----------------------------------------------------------------------------
 autoscaling:
   enabled: true
   minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
+
+# ----------------------------------------------------------------------------
+# OPENTELEMETRY AUTO-INSTRUMENTATION
+# ----------------------------------------------------------------------------
+# catalog is written in Go — OTel operator does not support Go auto-instrumentation
+# Traces must be added manually to the application code if needed
+opentelemetry:
+  enabled: false
+  instrumentation: "default-instrumentation"

@@ -1,3 +1,10 @@
+# ============================================================================
+# UI SERVICE - CUSTOM VALUES
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# INGRESS CONFIGURATION (AWS ALB)
+# ----------------------------------------------------------------------------
 ingress:
   enabled: true
   className: alb
@@ -5,6 +12,9 @@ ingress:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
 
+# ----------------------------------------------------------------------------
+# RESOURCE MANAGEMENT
+# ----------------------------------------------------------------------------
 resources:
   limits:
     cpu: 512m
@@ -13,9 +23,20 @@ resources:
     cpu: 256m
     memory: 256Mi
 
+# ----------------------------------------------------------------------------
+# AUTOSCALING - HORIZONTAL POD AUTOSCALER (HPA)
+# ----------------------------------------------------------------------------
 autoscaling:
   enabled: true
   minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
+
+# ----------------------------------------------------------------------------
+# OPENTELEMETRY AUTO-INSTRUMENTATION
+# ----------------------------------------------------------------------------
+# ui is a Node.js service — inject-sdk triggers Node.js agent injection
+opentelemetry:
+  enabled: true
+  instrumentation: "default-instrumentation"

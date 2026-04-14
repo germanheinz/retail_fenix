@@ -13,6 +13,15 @@ spec:
       {{- include "retail-fenix.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      {{- if or .Values.podAnnotations .Values.opentelemetry.enabled }}
+      annotations:
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if and .Values.opentelemetry.enabled .Values.opentelemetry.instrumentation }}
+        instrumentation.opentelemetry.io/inject-sdk: {{ .Values.opentelemetry.instrumentation }}
+        {{- end }}
+      {{- end }}
       labels:
         {{- include "retail-fenix.labels" . | nindent 8 }}
     spec:

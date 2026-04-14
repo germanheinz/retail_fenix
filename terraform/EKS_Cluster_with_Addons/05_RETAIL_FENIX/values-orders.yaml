@@ -1,9 +1,11 @@
-# Deploy PostgreSQL in-cluster (emptyDir, no PVC needed)
-postgresql:
-  create: true
+# ============================================================================
+# ORDERS SERVICE - CUSTOM VALUES
+# ============================================================================
 
-# Deploy RabbitMQ in-cluster
-rabbitmq:
+# ----------------------------------------------------------------------------
+# DATABASE CONFIGURATION (PostgreSQL in-cluster)
+# ----------------------------------------------------------------------------
+postgresql:
   create: true
 
 app:
@@ -15,6 +17,13 @@ app:
       name: orders-db
       username: orders_user
       password: orders_pass123
+
+# ----------------------------------------------------------------------------
+# MESSAGING CONFIGURATION (RabbitMQ in-cluster)
+# ----------------------------------------------------------------------------
+rabbitmq:
+  create: true
+
   messaging:
     provider: rabbitmq
     rabbitmq:
@@ -24,6 +33,20 @@ app:
         username: "guest"
         password: "guest"
 
+# ----------------------------------------------------------------------------
+# RESOURCE MANAGEMENT
+# ----------------------------------------------------------------------------
+resources:
+  limits:
+    cpu: 512m
+    memory: 512Mi
+  requests:
+    cpu: 128m
+    memory: 256Mi
+
+# ----------------------------------------------------------------------------
+# HEALTH PROBES
+# ----------------------------------------------------------------------------
 livenessProbe:
   initialDelaySeconds: 60
   periodSeconds: 10
@@ -34,17 +57,20 @@ readinessProbe:
   periodSeconds: 10
   failureThreshold: 3
 
-resources:
-  limits:
-    cpu: 512m
-    memory: 512Mi
-  requests:
-    cpu: 128m
-    memory: 256Mi
-
+# ----------------------------------------------------------------------------
+# AUTOSCALING - HORIZONTAL POD AUTOSCALER (HPA)
+# ----------------------------------------------------------------------------
 autoscaling:
   enabled: true
   minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
+
+# ----------------------------------------------------------------------------
+# OPENTELEMETRY AUTO-INSTRUMENTATION
+# ----------------------------------------------------------------------------
+# orders is a Java (Spring Boot) service — inject-sdk triggers Java agent injection
+opentelemetry:
+  enabled: true
+  instrumentation: "default-instrumentation"

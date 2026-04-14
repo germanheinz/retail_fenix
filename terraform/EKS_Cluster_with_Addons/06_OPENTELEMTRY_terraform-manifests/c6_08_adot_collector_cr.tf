@@ -34,41 +34,7 @@ resource "local_file" "adot_collector_manifest" {
           cpu: "500m"
           memory: "512Mi"
       config: |
-        extensions:
-          sigv4auth:
-            region: ${data.aws_region.current.name}
-            service: aps
-
         receivers:
-          prometheus:
-            config:
-              scrape_configs:
-                - job_name: kubernetes-pods
-                  sample_limit: 10000
-                  kubernetes_sd_configs:
-                    - role: pod
-                  relabel_configs:
-                    - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
-                      action: keep
-                      regex: "true"
-                    - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
-                      action: replace
-                      target_label: __metrics_path__
-                      regex: (.+)
-                    - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
-                      action: replace
-                      regex: ([^:]+)(?::\d+)?;(\d+)
-                      replacement: $1:$2
-                      target_label: __address__
-                    - action: labelmap
-                      regex: __meta_kubernetes_pod_label_(.+)
-                    - source_labels: [__meta_kubernetes_namespace]
-                      action: replace
-                      target_label: kubernetes_namespace
-                    - source_labels: [__meta_kubernetes_pod_name]
-                      action: replace
-                      target_label: kubernetes_pod_name
-
           otlp:
             protocols:
               grpc:
@@ -82,13 +48,6 @@ resource "local_file" "adot_collector_manifest" {
             send_batch_size: 10000
 
         exporters:
-          prometheusremotewrite:
-            endpoint: ${aws_prometheus_workspace.amp.prometheus_endpoint}api/v1/remote_write
-            auth:
-              authenticator: sigv4auth
-            resource_to_telemetry_conversion:
-              enabled: true
-
           awsxray:
             region: ${data.aws_region.current.name}
             indexed_attributes:
@@ -98,12 +57,7 @@ resource "local_file" "adot_collector_manifest" {
               - http.method
 
         service:
-          extensions: [sigv4auth]
           pipelines:
-            metrics:
-              receivers: [prometheus]
-              processors: [batch]
-              exporters: [prometheusremotewrite]
             traces:
               receivers: [otlp]
               processors: [batch]
@@ -116,7 +70,6 @@ resource "terraform_data" "adot_collector" {
   depends_on = [
     aws_eks_addon.adot,
     kubernetes_cluster_role_binding_v1.otel_collector,
-    aws_prometheus_workspace.amp,
     local_file.adot_collector_manifest,
   ]
 

@@ -10,8 +10,8 @@ ECR_REGISTRY="public.ecr.aws/retail-fenix/retail-fenix/charts"
 VERSION_CATALOG="1.0.3"
 VERSION_CART="1.0.3"
 VERSION_CHECKOUT="1.0.2"
-VERSION_ORDERS="1.0.3"
-VERSION_UI="1.0.5"
+VERSION_ORDERS="1.0.2"
+VERSION_UI="1.0.4"
 
 echo "============================================"
 echo "Retail Store Sample App - Helm Installation"
@@ -91,13 +91,13 @@ echo "✅ Cart service installed successfully"
 sleep 5
 
 # Step 03 - Checkout Service
+# Uses local chart: remote ECR chart doesn't support podAnnotations (needed for OTEL injection)
 echo
 echo "--------------------------------------------"
-echo "Step 3/5: Installing Checkout Service..."
+echo "Step 3/5: Installing Checkout Service (local chart)..."
 echo "--------------------------------------------"
 helm upgrade --install checkout \
-  oci://${ECR_REGISTRY}/checkout \
-  --version ${VERSION_CHECKOUT} \
+  "${SCRIPT_DIR}/../../../helm/checkout" \
   -f values-checkout.yaml \
   --wait \
   --timeout 5m
@@ -106,13 +106,13 @@ echo "✅ Checkout service installed successfully"
 sleep 5
 
 # Step 04 - Orders Service
+# Uses local chart: remote ECR chart doesn't support podAnnotations (needed for OTEL injection)
 echo
 echo "--------------------------------------------"
-echo "Step 4/5: Installing Orders Service..."
+echo "Step 4/5: Installing Orders Service (local chart)..."
 echo "--------------------------------------------"
 helm upgrade --install orders \
-  oci://${ECR_REGISTRY}/orders \
-  --version ${VERSION_ORDERS} \
+  "${SCRIPT_DIR}/../../../helm/orders" \
   -f values-orders.yaml \
   --wait \
   --timeout 10m
@@ -121,13 +121,13 @@ echo "✅ Orders service installed successfully"
 sleep 5
 
 # Step 05 - UI Service
+# Uses local chart: remote ECR chart doesn't support podAnnotations (needed for OTEL injection)
 echo
 echo "--------------------------------------------"
-echo "Step 5/5: Installing UI Service..."
+echo "Step 5/5: Installing UI Service (local chart)..."
 echo "--------------------------------------------"
 helm upgrade --install ui \
-  oci://${ECR_REGISTRY}/ui \
-  --version ${VERSION_UI} \
+  "${SCRIPT_DIR}/../../../helm/ui" \
   -f values-ui.yaml \
   --wait \
   --timeout 5m

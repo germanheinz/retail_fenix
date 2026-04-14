@@ -48,6 +48,12 @@ readinessProbe:
   periodSeconds: 10
   failureThreshold: 3
 
+podAnnotations: {}
+
+opentelemetry:
+  enabled: false
+  instrumentation: ""
+
 autoscaling:
   enabled: false
   minReplicas: 1

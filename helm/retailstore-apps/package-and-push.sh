@@ -1,24 +1,41 @@
 #!/bin/bash
-
 set -e
 
-CHART_VERSION="1.0.2"
 ECR_REGISTRY="public.ecr.aws/i5b4r2o0/retail-fenix/charts"
 CHARTS_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
+# Read version from each chart's Chart.yaml
+VERSION_CATALOG=$(grep '^version:' "$CHARTS_DIR/catalog/Chart.yaml" | awk '{print $2}')
+VERSION_CART=$(grep    '^version:' "$CHARTS_DIR/cart/Chart.yaml"    | awk '{print $2}')
+VERSION_CHECKOUT=$(grep '^version:' "$CHARTS_DIR/checkout/Chart.yaml" | awk '{print $2}')
+VERSION_ORDERS=$(grep  '^version:' "$CHARTS_DIR/orders/Chart.yaml"  | awk '{print $2}')
+VERSION_UI=$(grep      '^version:' "$CHARTS_DIR/ui/Chart.yaml"      | awk '{print $2}')
+
 echo "============================================"
 echo "Package & Push - Retail Fenix Helm Charts"
-echo "Version: $CHART_VERSION"
+echo "Registry: oci://${ECR_REGISTRY}"
+echo "Versions:"
+echo "  catalog:  ${VERSION_CATALOG}"
+echo "  cart:     ${VERSION_CART}"
+echo "  checkout: ${VERSION_CHECKOUT}"
+echo "  orders:   ${VERSION_ORDERS}"
+echo "  ui:       ${VERSION_UI}"
 echo "============================================"
 
-# Step 01 - Package all charts
+# Step 01 - Clean previous .tgz files
 echo ""
 echo "--------------------------------------------"
-echo "Packaging all charts..."
+echo "Cleaning previous packages..."
 echo "--------------------------------------------"
+rm -f "$CHARTS_DIR"/*.tgz
+echo "Clean done."
 
+# Step 02 - Package all charts
+echo ""
+echo "--------------------------------------------"
+echo "Packaging charts..."
+echo "--------------------------------------------"
 cd "$CHARTS_DIR"
-
 helm package catalog  --destination .
 helm package cart     --destination .
 helm package checkout --destination .
@@ -26,36 +43,35 @@ helm package orders   --destination .
 helm package ui       --destination .
 
 echo ""
-echo "Charts packaged:"
-ls -1 ./*.tgz 2>/dev/null | xargs -n1 basename
+echo "Packaged:"
+ls -1 ./*.tgz | xargs -n1 basename
 
-# Step 02 - Authenticate to ECR
+# Step 03 - Authenticate to ECR
 echo ""
 echo "--------------------------------------------"
 echo "Authenticating to Amazon Public ECR..."
 echo "--------------------------------------------"
-
 ECR_TOKEN=$(aws ecr-public get-login-password --region us-east-1)
 docker login public.ecr.aws --username AWS --password "$ECR_TOKEN"
+echo "Authenticated."
 
-# Step 03 - Push all charts
+# Step 04 - Push all charts
 echo ""
 echo "--------------------------------------------"
 echo "Pushing charts to ECR..."
 echo "--------------------------------------------"
-
-helm push catalog-${CHART_VERSION}.tgz  oci://${ECR_REGISTRY}
-helm push cart-${CHART_VERSION}.tgz     oci://${ECR_REGISTRY}
-helm push checkout-${CHART_VERSION}.tgz oci://${ECR_REGISTRY}
-helm push orders-${CHART_VERSION}.tgz   oci://${ECR_REGISTRY}
-helm push ui-${CHART_VERSION}.tgz       oci://${ECR_REGISTRY}
+helm push "catalog-${VERSION_CATALOG}.tgz"   oci://${ECR_REGISTRY}
+helm push "cart-${VERSION_CART}.tgz"         oci://${ECR_REGISTRY}
+helm push "checkout-${VERSION_CHECKOUT}.tgz" oci://${ECR_REGISTRY}
+helm push "orders-${VERSION_ORDERS}.tgz"     oci://${ECR_REGISTRY}
+helm push "ui-${VERSION_UI}.tgz"             oci://${ECR_REGISTRY}
 
 echo ""
 echo "============================================"
 echo "All charts pushed successfully!"
-echo "  oci://${ECR_REGISTRY}/catalog:${CHART_VERSION}"
-echo "  oci://${ECR_REGISTRY}/cart:${CHART_VERSION}"
-echo "  oci://${ECR_REGISTRY}/checkout:${CHART_VERSION}"
-echo "  oci://${ECR_REGISTRY}/orders:${CHART_VERSION}"
-echo "  oci://${ECR_REGISTRY}/ui:${CHART_VERSION}"
+echo "  oci://${ECR_REGISTRY}/catalog:${VERSION_CATALOG}"
+echo "  oci://${ECR_REGISTRY}/cart:${VERSION_CART}"
+echo "  oci://${ECR_REGISTRY}/checkout:${VERSION_CHECKOUT}"
+echo "  oci://${ECR_REGISTRY}/orders:${VERSION_ORDERS}"
+echo "  oci://${ECR_REGISTRY}/ui:${VERSION_UI}"
 echo "============================================"
