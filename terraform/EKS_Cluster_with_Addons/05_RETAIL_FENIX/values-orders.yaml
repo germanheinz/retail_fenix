@@ -17,13 +17,6 @@ app:
       name: orders-db
       username: orders_user
       password: orders_pass123
-
-# ----------------------------------------------------------------------------
-# MESSAGING CONFIGURATION (RabbitMQ in-cluster)
-# ----------------------------------------------------------------------------
-rabbitmq:
-  create: true
-
   messaging:
     provider: rabbitmq
     rabbitmq:
@@ -32,6 +25,12 @@ rabbitmq:
         name: orders-rabbitmq
         username: "guest"
         password: "guest"
+
+# ----------------------------------------------------------------------------
+# MESSAGING CONFIGURATION (RabbitMQ in-cluster)
+# ----------------------------------------------------------------------------
+rabbitmq:
+  create: true
 
 # ----------------------------------------------------------------------------
 # RESOURCE MANAGEMENT
