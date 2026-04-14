@@ -1,8 +1,5 @@
 # AMAZON MANAGED GRAFANA WORKSPACE
-# count = 0: AMG requires a paid subscription (SubscriptionRequiredException on Free Tier)
-# Set count = 1 once you subscribe to Amazon Managed Grafana in the AWS console
 resource "aws_grafana_workspace" "main" {
-  count                    = 0
   name                     = "${local.cluster_name}-amg"
   description              = "Grafana workspace for ${local.cluster_name} EKS cluster monitoring"
   account_access_type      = "CURRENT_ACCOUNT"
@@ -33,22 +30,23 @@ resource "aws_grafana_workspace" "main" {
 
 # AMG Workspace
 output "amg_workspace_id" {
-  description = "ID of the Grafana workspace (null when count=0)"
-  value       = one(aws_grafana_workspace.main[*].id)
+  description = "ID of the Grafana workspace"
+  value       = aws_grafana_workspace.main.id
 }
 
 output "amg_workspace_arn" {
-  description = "ARN of the Grafana workspace (null when count=0)"
-  value       = one(aws_grafana_workspace.main[*].arn)
+  description = "ARN of the Grafana workspace"
+  value       = aws_grafana_workspace.main.arn
 }
 
 output "amg_workspace_endpoint" {
-  description = "Endpoint URL for the Grafana workspace (null when count=0)"
-  value       = one(aws_grafana_workspace.main[*].endpoint)
+  description = "Endpoint URL for the Grafana workspace"
+  value       = aws_grafana_workspace.main.endpoint
 }
 
+
 output "amg_workspace_url" {
-  description = "Full URL to access Grafana workspace (null when count=0)"
-  value       = one(aws_grafana_workspace.main[*].endpoint) != null ? "https://${one(aws_grafana_workspace.main[*].endpoint)}" : null
+  description = "Full URL to access Grafana workspace"
+  value       = "https://${aws_grafana_workspace.main.endpoint}"
 }
 

@@ -4,7 +4,7 @@
 # Helm Charts which doesn't need Secrets from AWS Secrets Manager
 set -e
 
-ECR_REGISTRY="public.ecr.aws/i5b4r2o0/retail-fenix/charts"
+ECR_REGISTRY="public.ecr.aws/retail-fenix/retail-fenix/charts"
 
 # Chart versions per service (update independently as needed)
 VERSION_CATALOG="1.0.3"
@@ -74,7 +74,8 @@ echo "✅ Catalog service installed successfully"
 sleep 5
 
 # Step 02 - Cart Service
-# Uses local chart to fix AWS_REGION env var for DynamoDB Local (SDK v2 requires AWS_REGION, not AWS_DEFAULT_REGION)
+# Uses local chart: remote ECR chart missing AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY/AWS_REGION
+# required by DynamoDB SDK v2 even against DynamoDB Local endpoint
 echo
 echo "--------------------------------------------"
 echo "Step 2/5: Installing Cart Service (local chart)..."

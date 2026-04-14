@@ -54,3 +54,6 @@ desktop.ini
 *.tmp
 *.swp
 tmp/
+
+# Terraform-generated manifests
+terraform/EKS_Cluster_with_Addons/03_OPENTELEMTRY_terraform-manifests/adot-collector-cr.yaml

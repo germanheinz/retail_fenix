@@ -99,7 +99,7 @@ variable "node_instance_types" {
 variable "node_capacity_type" {
   description = "Instance capacity type: ON_DEMAND or SPOT"
   type        = string
-  default     = "SPOT"
+  default     = "ON_DEMAND"
 }
 
 # Root volume size (GiB) for worker nodes
@@ -107,12 +107,5 @@ variable "node_disk_size" {
   description = "Disk size in GiB for worker nodes"
   type        = number
   default     = 20
-}
-
-# Desired number of worker nodes at launch
-variable "node_desired_size" {
-  description = "Desired number of worker nodes in the node group"
-  type        = number
-  default     = 1
 }
 

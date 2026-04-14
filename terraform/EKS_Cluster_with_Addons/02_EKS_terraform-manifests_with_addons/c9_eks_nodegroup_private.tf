@@ -13,7 +13,7 @@ resource "aws_eks_node_group" "private_nodes" {
   # Subnets where the worker nodes will be launched (typically private subnets)
   subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnet_ids
 
-  # Instance types for the node group — configured via var.node_instance_types
+  # Instance types for the nodes (e.g., t3.medium, m5.large)
   instance_types = var.node_instance_types
 
   # Choose between ON_DEMAND or SPOT capacity types
@@ -29,9 +29,14 @@ resource "aws_eks_node_group" "private_nodes" {
 
   # Configure auto-scaling limits and defaults
   scaling_config {
-    desired_size = var.node_desired_size
-    min_size     = 1
-    max_size     = 4
+    # Desired number of nodes when the node group is created
+    desired_size = 3
+
+    # Minimum number of nodes allowed
+    min_size = 1
+
+    # Maximum number of nodes the group can scale to
+    max_size = 6
   }
 
   # Set the max percentage of nodes that can be unavailable during update

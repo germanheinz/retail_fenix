@@ -28,7 +28,7 @@ output "pod_identity_agent_eksaddon_default_version" {
   value = data.aws_eks_addon_version.pia_default.version
 }
 
-output "pod_identity_agent_eksaddon_latest_version" {
+output "pod_identity_agent_eksaddon_lastest_version" {
   value = data.aws_eks_addon_version.pia_latest.version
 }
 output "pod_identity_agent_eksaddon_arn" {

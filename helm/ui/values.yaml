@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: public.ecr.aws/i5b4r2o0/retail-fenix/ui
-  tag: "1.0.0"
+  tag: "1.0.1"
   pullPolicy: IfNotPresent
 
 service:

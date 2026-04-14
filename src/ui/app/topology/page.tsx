@@ -2,6 +2,8 @@ import { Tags, ShoppingCart, CreditCard, ClipboardList, Layers } from 'lucide-re
 import { ServiceCard } from '@/components/topology/ServiceCard'
 import type { TopologyInfo } from '@/lib/types'
 
+export const dynamic = 'force-dynamic'
+
 const CONNECT_TIMEOUT = 3000
 
 async function getTopologyForService(

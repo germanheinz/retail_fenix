@@ -10,12 +10,12 @@ dynamodb:
   create: true
 
 livenessProbe:
-  initialDelaySeconds: 45
+  initialDelaySeconds: 90
   periodSeconds: 10
   failureThreshold: 3
 
 readinessProbe:
-  initialDelaySeconds: 15
+  initialDelaySeconds: 75
   periodSeconds: 10
   failureThreshold: 3
 
