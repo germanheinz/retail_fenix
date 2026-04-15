@@ -13,8 +13,12 @@ data:
   AWS_SECRET_ACCESS_KEY: "dummy"
   AWS_DEFAULT_REGION: "us-east-1"
   AWS_REGION: "us-east-1"
-  # Disable OTEL Java agent AWS SDK instrumentation — conflicts with SDK v2 ClasspathInterceptorChainFactory
+  # Disable OTEL Java agent entirely for cart — AWS SDK v2.32 built-in OTEL metrics
+  # causes ClassCastException (DefaultMeter$NoopLongHistogramBuilder vs ExtendedLongHistogramBuilder)
+  # in static initializer before any runtime config takes effect. Known incompatibility
+  # between adot-java-agent 1.33.0 and AWS SDK v2.32+
   OTEL_INSTRUMENTATION_AWS_SDK_ENABLED: "false"
+  OTEL_JAVAAGENT_ENABLED: "false"
   {{- end }}
   RETAIL_CART_PERSISTENCE_DYNAMODB_CREATE_TABLE: {{ .Values.app.persistence.dynamodb.createTable | quote }}
   RETAIL_CART_PERSISTENCE_DYNAMODB_TABLE_NAME: {{ .Values.app.persistence.dynamodb.tableName | quote }}

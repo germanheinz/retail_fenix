@@ -32,7 +32,7 @@ spec:
 
   # OTLP endpoint for all auto-instrumented apps
   exporter:
-    endpoint: http://adot-collector-collector:4318
+    endpoint: http://adot-traces-collector:4318
 
   # ============ Cross-service tracing config =====================
   propagators:
