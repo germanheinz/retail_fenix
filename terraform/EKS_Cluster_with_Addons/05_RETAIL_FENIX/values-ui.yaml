@@ -38,5 +38,7 @@ autoscaling:
 # ----------------------------------------------------------------------------
 # ui is a Node.js service — inject-sdk triggers Node.js agent injection
 opentelemetry:
-  enabled: true
-  instrumentation: "default-instrumentation"
+  enabled: false
+
+podAnnotations:
+  instrumentation.opentelemetry.io/inject-nodejs: "default-instrumentation"

@@ -1,46 +1,12 @@
-# ADOT Collector IAM Policy
+# ADOT Collector IAM Policy — X-Ray traces + CloudWatch Logs
+# AMP (Prometheus) disabled — not needed for traces-only setup.
 resource "aws_iam_policy" "adot_collector" {
   name        = "${local.name}-adot-collector-policy"
-  description = "IAM policy for ADOT collector to send telemetry to CloudWatch and X-Ray"
+  description = "IAM policy for ADOT collector to send traces to X-Ray and logs to CloudWatch"
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
-      # CloudWatch Logs Permissions (Write)
-      {
-        Effect = "Allow"
-        Action = [
-          "logs:PutLogEvents",
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:DescribeLogStreams",
-          "logs:DescribeLogGroups"
-        ]
-        Resource = [
-          "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/*",
-          "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/*:*"
-        ]
-      },
-      # CloudWatch Logs Permissions (Read - for querying/debugging)
-      {
-        Effect = "Allow"
-        Action = [
-          "logs:GetLogEvents",
-          "logs:FilterLogEvents"
-        ]
-        Resource = [
-          "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/*",
-          "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/*:*"
-        ]
-      },
-      # CloudWatch Metrics Permissions
-      {
-        Effect = "Allow"
-        Action = [
-          "cloudwatch:PutMetricData"
-        ]
-        Resource = "*"
-      },
-      # X-Ray Permissions
+      # X-Ray Permissions (traces)
       {
         Effect = "Allow"
         Action = [
@@ -52,18 +18,30 @@ resource "aws_iam_policy" "adot_collector" {
         ]
         Resource = "*"
       },
-      # Amazon Managed Prometheus permissions    
+      # CloudWatch Logs Permissions
       {
         Effect = "Allow"
         Action = [
-          "aps:RemoteWrite",
-          "aps:QueryMetrics",
-          "aps:GetSeries",
-          "aps:GetLabels",
-          "aps:GetMetricMetadata"
+          "logs:PutLogEvents",
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:DescribeLogStreams",
+          "logs:DescribeLogGroups",
+          "logs:GetLogEvents",
+          "logs:FilterLogEvents"
         ]
-        Resource = aws_prometheus_workspace.amp.arn
-      }      
+        Resource = [
+          "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/*",
+          "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/*:*"
+        ]
+      }
+      # DISABLED: Amazon Managed Prometheus (AMP) — paid service, not needed for traces-only
+      # {
+      #   Effect   = "Allow"
+      #   Action   = ["aps:RemoteWrite", "aps:QueryMetrics", "aps:GetSeries",
+      #               "aps:GetLabels", "aps:GetMetricMetadata"]
+      #   Resource = aws_prometheus_workspace.amp.arn
+      # }
     ]
   })
 

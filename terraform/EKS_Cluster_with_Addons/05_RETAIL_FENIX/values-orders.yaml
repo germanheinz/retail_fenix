@@ -71,5 +71,7 @@ autoscaling:
 # ----------------------------------------------------------------------------
 # orders is a Java (Spring Boot) service — inject-sdk triggers Java agent injection
 opentelemetry:
-  enabled: true
-  instrumentation: "default-instrumentation"
+  enabled: false
+
+podAnnotations:
+  instrumentation.opentelemetry.io/inject-java: "default-instrumentation"
