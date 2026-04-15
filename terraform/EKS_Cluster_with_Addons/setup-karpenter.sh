@@ -83,20 +83,14 @@ echo ""
 cd "${SCRIPT_DIR}/03_KARPENTER_terraform-manifests"
 
 log "Initializing Terraform..."
-terraform init -reconfigure -input=false > /dev/null
+terraform init -reconfigure -input=false
 
 # Import pre-existing IAM roles if they exist in AWS but not in Terraform state
-# Derive prefix from Terraform variable defaults to stay in sync with local.name
-TF_VARS_FILE="${SCRIPT_DIR}/03_KARPENTER_terraform-manifests/c2_variables.tf"
-BUSINESS_DIVISION=$(grep -A2 'variable "business_division"' "$TF_VARS_FILE" | grep 'default' | sed 's/.*default\s*=\s*"\(.*\)".*/\1/')
-ENVIRONMENT_NAME=$(grep -A2 'variable "environment_name"' "$TF_VARS_FILE" | grep 'default' | sed 's/.*default\s*=\s*"\(.*\)".*/\1/')
+BUSINESS_DIVISION="retail"
+ENVIRONMENT_NAME="dev"
 CLUSTER_NAME_PREFIX="${BUSINESS_DIVISION}-${ENVIRONMENT_NAME}"
 CONTROLLER_ROLE="${CLUSTER_NAME_PREFIX}-karpenter-controller-role"
 NODE_ROLE="${CLUSTER_NAME_PREFIX}-karpenter-node-role"
-
-if [[ -z "$BUSINESS_DIVISION" || -z "$ENVIRONMENT_NAME" ]]; then
-  error "Could not derive role name prefix from ${TF_VARS_FILE}. Check business_division and environment_name defaults."
-fi
 
 log "Using IAM role prefix: ${CLUSTER_NAME_PREFIX}"
 
