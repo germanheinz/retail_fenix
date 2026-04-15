@@ -53,8 +53,11 @@ autoscaling:
 # OPENTELEMETRY AUTO-INSTRUMENTATION
 # ----------------------------------------------------------------------------
 # cart is a Java (Spring Boot) service — inject-sdk triggers Java agent injection
+# aws-sdk instrumentation disabled: OTEL Java agent v1.33 conflicts with
+# AWS SDK v2 ClasspathInterceptorChainFactory causing NPE on DynamoDB client init
 opentelemetry:
   enabled: false
 
 podAnnotations:
   instrumentation.opentelemetry.io/inject-java: "default-instrumentation"
+  instrumentation.opentelemetry.io/java-container-names: "cart"

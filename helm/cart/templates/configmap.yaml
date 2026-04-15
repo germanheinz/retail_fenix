@@ -13,6 +13,8 @@ data:
   AWS_SECRET_ACCESS_KEY: "dummy"
   AWS_DEFAULT_REGION: "us-east-1"
   AWS_REGION: "us-east-1"
+  # Disable OTEL Java agent AWS SDK instrumentation — conflicts with SDK v2 ClasspathInterceptorChainFactory
+  OTEL_INSTRUMENTATION_AWS_SDK_ENABLED: "false"
   {{- end }}
   RETAIL_CART_PERSISTENCE_DYNAMODB_CREATE_TABLE: {{ .Values.app.persistence.dynamodb.createTable | quote }}
   RETAIL_CART_PERSISTENCE_DYNAMODB_TABLE_NAME: {{ .Values.app.persistence.dynamodb.tableName | quote }}
