@@ -85,44 +85,6 @@ cd "${SCRIPT_DIR}/03_KARPENTER_terraform-manifests"
 log "Initializing Terraform..."
 terraform init -reconfigure -input=false
 
-# Import pre-existing IAM roles if they exist in AWS but not in Terraform state
-BUSINESS_DIVISION="retail"
-ENVIRONMENT_NAME="dev"
-CLUSTER_NAME_PREFIX="${BUSINESS_DIVISION}-${ENVIRONMENT_NAME}"
-CONTROLLER_ROLE="${CLUSTER_NAME_PREFIX}-karpenter-controller-role"
-NODE_ROLE="${CLUSTER_NAME_PREFIX}-karpenter-node-role"
-
-log "Using IAM role prefix: ${CLUSTER_NAME_PREFIX}"
-
-if aws iam get-role --role-name "$CONTROLLER_ROLE" &>/dev/null; then
-  if ! terraform state show aws_iam_role.karpenter_controller &>/dev/null; then
-    warn "IAM role '${CONTROLLER_ROLE}' exists in AWS but not in state — importing..."
-    terraform import -input=false aws_iam_role.karpenter_controller "$CONTROLLER_ROLE"
-    log "Imported karpenter_controller role."
-  fi
-fi
-
-if aws iam get-role --role-name "$NODE_ROLE" &>/dev/null; then
-  if ! terraform state show aws_iam_role.karpenter_node &>/dev/null; then
-    warn "IAM role '${NODE_ROLE}' exists in AWS but not in state — importing..."
-    terraform import -input=false aws_iam_role.karpenter_node "$NODE_ROLE"
-    log "Imported karpenter_node role."
-  fi
-fi
-
-CONTROLLER_POLICY="${CLUSTER_NAME_PREFIX}-karpenter-controller-policy"
-CONTROLLER_POLICY_ARN=$(aws iam list-policies --scope Local \
-  --query "Policies[?PolicyName=='${CONTROLLER_POLICY}'].Arn" \
-  --output text 2>/dev/null)
-
-if [[ -n "$CONTROLLER_POLICY_ARN" ]]; then
-  if ! terraform state show aws_iam_policy.karpenter_controller &>/dev/null; then
-    warn "IAM policy '${CONTROLLER_POLICY}' exists in AWS but not in state — importing..."
-    terraform import -input=false aws_iam_policy.karpenter_controller "$CONTROLLER_POLICY_ARN"
-    log "Imported karpenter_controller policy."
-  fi
-fi
-
 log "Applying Karpenter infrastructure..."
 terraform apply -auto-approve -input=false
 

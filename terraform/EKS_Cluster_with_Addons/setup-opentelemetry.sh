@@ -70,40 +70,7 @@ echo ""
 cd "${SCRIPT_DIR}/06_OPENTELEMTRY_terraform-manifests"
 
 log "Initializing Terraform..."
-terraform init -reconfigure -input=false > /dev/null
-
-# Import pre-existing IAM resources if they exist in AWS but not in Terraform state
-TF_VARS_FILE="${SCRIPT_DIR}/06_OPENTELEMTRY_terraform-manifests/c2_variables.tf"
-BUSINESS_DIVISION=$(grep -A2 'variable "business_division"' "$TF_VARS_FILE" | grep 'default' | sed 's/.*default\s*=\s*"\(.*\)".*/\1/')
-ENVIRONMENT_NAME=$(grep -A2 'variable "environment_name"' "$TF_VARS_FILE" | grep 'default' | sed 's/.*default\s*=\s*"\(.*\)".*/\1/')
-NAME_PREFIX="${BUSINESS_DIVISION}-${ENVIRONMENT_NAME}"
-
-if [[ -z "$BUSINESS_DIVISION" || -z "$ENVIRONMENT_NAME" ]]; then
-  error "Could not derive name prefix from ${TF_VARS_FILE}. Check business_division and environment_name defaults."
-fi
-
-# Role uses local.cluster_name (from EKS remote state = CLUSTER_NAME)
-ADOT_ROLE="${CLUSTER_NAME}-adot-collector-role"
-if aws iam get-role --role-name "$ADOT_ROLE" &>/dev/null; then
-  if ! terraform state show aws_iam_role.adot_collector &>/dev/null; then
-    warn "IAM role '${ADOT_ROLE}' exists in AWS but not in state — importing..."
-    terraform import -input=false aws_iam_role.adot_collector "$ADOT_ROLE"
-    log "Imported adot_collector role."
-  fi
-fi
-
-# Policy uses local.name (business_division-environment_name)
-ADOT_POLICY="${NAME_PREFIX}-adot-collector-policy"
-ADOT_POLICY_ARN=$(aws iam list-policies --scope Local \
-  --query "Policies[?PolicyName=='${ADOT_POLICY}'].Arn" \
-  --output text 2>/dev/null)
-if [[ -n "$ADOT_POLICY_ARN" ]]; then
-  if ! terraform state show aws_iam_policy.adot_collector &>/dev/null; then
-    warn "IAM policy '${ADOT_POLICY}' exists in AWS but not in state — importing..."
-    terraform import -input=false aws_iam_policy.adot_collector "$ADOT_POLICY_ARN"
-    log "Imported adot_collector policy."
-  fi
-fi
+terraform init -reconfigure -input=false
 
 log "Applying OpenTelemetry infrastructure..."
 terraform apply -auto-approve -input=false
@@ -120,10 +87,38 @@ echo "============================================="
 echo ""
 
 log "Waiting for opentelemetry-operator deployment..."
-kubectl wait --for=condition=available \
-  deployment/opentelemetry-operator-controller-manager \
-  -n opentelemetry-operator-system \
-  --timeout=180s
+# ADOT EKS addon deploys the operator — find it regardless of namespace/name
+OTEL_NS=$(kubectl get deployments -A 2>/dev/null \
+  | grep -i "opentelemetry-operator\|adot-operator" \
+  | awk '{print $1}' | head -1 || true)
+OTEL_DEPLOY=$(kubectl get deployments -A 2>/dev/null \
+  | grep -i "opentelemetry-operator\|adot-operator" \
+  | awk '{print $2}' | head -1 || true)
+
+if [[ -n "$OTEL_NS" && -n "$OTEL_DEPLOY" ]]; then
+  log "Found operator: ${OTEL_DEPLOY} in namespace: ${OTEL_NS}"
+  kubectl wait --for=condition=available \
+    deployment/"${OTEL_DEPLOY}" \
+    -n "${OTEL_NS}" \
+    --timeout=180s
+else
+  warn "OTel operator deployment not found — waiting 60s for it to appear..."
+  sleep 60
+  OTEL_NS=$(kubectl get deployments -A 2>/dev/null \
+    | grep -i "opentelemetry-operator\|adot-operator" \
+    | awk '{print $1}' | head -1 || true)
+  OTEL_DEPLOY=$(kubectl get deployments -A 2>/dev/null \
+    | grep -i "opentelemetry-operator\|adot-operator" \
+    | awk '{print $2}' | head -1 || true)
+  if [[ -n "$OTEL_NS" && -n "$OTEL_DEPLOY" ]]; then
+    kubectl wait --for=condition=available \
+      deployment/"${OTEL_DEPLOY}" \
+      -n "${OTEL_NS}" \
+      --timeout=180s
+  else
+    warn "OTel operator still not found — continuing anyway."
+  fi
+fi
 
 log "OTel Operator is ready."
 echo ""
@@ -192,11 +187,11 @@ kubectl get instrumentation -n default
 
 echo ""
 log "ADOT services:"
-kubectl get svc | grep adot
+kubectl get svc | grep adot || warn "No adot services found yet."
 
 echo ""
 log "Collector pod status:"
-kubectl get pods | grep adot
+kubectl get pods | grep adot || warn "No adot pods found yet."
 
 echo ""
 echo "============================================="
