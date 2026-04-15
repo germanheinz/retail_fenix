@@ -170,7 +170,7 @@ terraform {
 
   # Remote Backend Configuration
   backend "s3" {
-    bucket         = "tfstate-dev-us-east-1-sn2py6"     # 🔹 Update your S3 bucket name
+    bucket         = "tfstate-dev-us-east-1-qkks2c"     # 🔹 Update your S3 bucket name
     key            = "vpc/dev/terraform.tfstate"        # 🔹 Update key path (vpc/dev or eks/dev)
     region         = "us-east-1"                        # 🔹 Update region if required
     encrypt        = true

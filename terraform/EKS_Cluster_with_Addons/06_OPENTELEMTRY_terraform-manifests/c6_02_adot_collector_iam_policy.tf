@@ -62,7 +62,7 @@ resource "aws_iam_policy" "adot_collector" {
           "aps:GetLabels",
           "aps:GetMetricMetadata"
         ]
-        Resource = "*"
+        Resource = aws_prometheus_workspace.amp.arn
       }      
     ]
   })
