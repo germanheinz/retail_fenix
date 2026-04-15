@@ -69,12 +69,15 @@ echo "============================================="
 echo ""
 
 log "Authenticating Helm to ECR Public (required for Karpenter chart)..."
-if aws ecr-public get-login-password --region us-east-1 | \
-   helm registry login --username AWS --password-stdin public.ecr.aws 2>/dev/null; then
+# Use docker login — avoids Git Bash (MINGW64) pipe corruption on Windows.
+# Helm 3 automatically uses Docker's credential store for OCI registries.
+ECR_TOKEN=$(aws ecr-public get-login-password --region us-east-1 2>/dev/null)
+if [[ -n "$ECR_TOKEN" ]] && docker login --username AWS --password "$ECR_TOKEN" public.ecr.aws 2>/dev/null; then
   log "ECR Public authenticated."
 else
   warn "ECR Public auth failed — Karpenter chart may already be cached."
 fi
+unset ECR_TOKEN
 
 echo ""
 cd "${SCRIPT_DIR}/03_KARPENTER_terraform-manifests"
