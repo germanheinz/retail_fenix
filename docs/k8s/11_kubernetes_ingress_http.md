@@ -5,9 +5,6 @@
 2. **Undeploy** HTTP objects.
 
 
-### Ingress and Retail Store Sample Application
-![Ingress and Retail Store Sample Application](../../images/11-01-02-Ingress-and-RetaiStore-App.png)
-
 ---
 
 ## Step-02: Kubernetes Manifests (Ingress - HTTP)
@@ -22,8 +19,6 @@ Folder: `http_retail_store_k8s_manifests/`
 * [06 Ingress Instance Mode: 06_ingress/01_ingress_http_instance_mode.yaml](./http_retail_store_k8s_manifests/06_ingress/01_ingress_http_instance_mode.yaml)
 
 * [06 Ingress IP Mode: 06_ingress/02_ingress_http_ip_mode.yaml](./http_retail_store_k8s_manifests/06_ingress/02_ingress_http_ip_mode.yaml)
-
-![K8s Ingress HTTP Flow](./images/01_ingress-http.png)
 
 ### Deploy Ingress HTTP
 

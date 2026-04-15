@@ -10,12 +10,6 @@
 Retail Apps → ADOT Collector → AWS Cloud Watch Logs
 ```
 
-### Open Telemetry Logs - Architectural Flow
-![Open Telemetry Logs - Architectural Flow](../../images/20_03_01_OpenTelemetry_Logs.png)
-
-### Open Telemetry Collector - Components
-![Open Telemetry Collector - Components](../../images/20_03_02_OpenTelemetry_Logs.png)
-
 ## Step-01: Pre-requisites
 1. AWS VPC, EKS Cluster, Karpenter everything created as part of [Section:20_01_EKS_Environment_with_ADOT - EKS Cluster](../20_01_EKS_Environment_with_ADOT/01_EKS_Cluster_Environment/)
 

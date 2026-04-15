@@ -9,13 +9,6 @@
 AWS EKS Metrics → ADOT Collector → AWS Managed Prometheus -> AWS Managed Grafana
 ```
 
-### ADOT Metrics Collector - Architectural Flow
-![ADOT Metrics Collector - Architectural Flow](../../images/20_04_01_OpenTelemetry_Metrics_AMP_AMG.png)
-
-### ADOT Metrics Collector - YAML File
-![ADOT Metrics Collector - YAML File](../../images/20_04_02_OpenTelemetry_Metrics_AMP_AMG.png)
-
-
 ## Step-01: Pre-requisites
 1. Enable AWS IAM Identity Center in your AWS Cloud Account
 

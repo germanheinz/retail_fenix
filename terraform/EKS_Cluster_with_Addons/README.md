@@ -9,9 +9,6 @@ In this section, we build on top of our base EKS cluster from [Section-07](../..
 
 ## What we are going to implement ?
 
-![Automate Deployment of EKS addons using Terraform](../images/13_EKS_Cluster_with_AddOns.png)
-
-
 ---
 
 ## **Step-01: Project Overview**

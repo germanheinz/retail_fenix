@@ -11,17 +11,6 @@
 Retail Apps → ADOT Collector → AWS X-Ray → CloudWatch Application Signals
 ```
 
-### ADOT Collector Traces Architecture
-![ADOT Collector Traces Architecture](../../images/20_02_01_ADOT_OpenTelemetry_Traces.png)
-
-### ADOT Collector YAML Structure
-![ADOT Collector YAML Structure](../../images/20_02_02_ADOT_Collector_Traces.png)
-
-
-### Sample Trace Map
-![Trace Map on AWS CloudWatch Application Signals Traces](../../images/20_02_03_ADOT_Traces.png)
-
-
 ## Step-01: Pre-requisites
 1. AWS VPC, EKS Cluster, Karpenter everything created as part of [Section:20_01_EKS_Environment_with_ADOT - EKS Cluster](../20_01_EKS_Environment_with_ADOT/01_EKS_Cluster_Environment/)
 

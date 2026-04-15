@@ -5,20 +5,6 @@ We build the cluster step by step, covering IAM roles, networking, node groups, 
 
 ---
 
-## Kubernetes Architecture
-![Kubernetes Architecture](../images/07_01_EKS_Cluster.png)
-
----
-
-## AWS EKS Cluster Architecture
-![AWS EKS Cluster Architecture](../images/07_02_EKS_Cluster.png)
-
----
-
-## Terraform Remote State Datasource for VPC and EKS Cluster Terraform Projects 
-- Sharing data across Terraform projects
-![Terraform Remote State Datasource for VPC and EKS Cluster](../images/07_03_EKS_Cluster.png)
-
 ---
 
 ## Step-01: Project Structure
